@@ -1,9 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.DualTrack" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    <style name="Theme.DualTrack" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:statusBarColor">@color/dt_navy</item>
+        <item name="android:navigationBarColor">@color/dt_navy</item>
+        <item name="android:windowBackground">@color/dt_navy</item>
+        <item name="android:textColor">@color/dt_text</item>
+        <item name="colorPrimary">@color/dt_orange</item>
+        <item name="colorSecondary">@color/dt_orange</item>
     </style>
-
-    <style name="Theme.DualTrack" parent="Base.Theme.DualTrack" />
 </resources>

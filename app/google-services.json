@@ -7,9 +7,28 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:41365349795:android:2b4c87742ef35de293a616",
+        "android_client_info": {
+          "package_name": "com.dualtrack.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBPqXAQ1k3zRzm_Uibq1G6cF2N3NJQoe88"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:41365349795:android:af59c17746544faf93a616",
         "android_client_info": {
-          "package_name": "com.example.dualtrack"
+          "package_name": "com.dualtrack.app"
         }
       },
       "oauth_client": [],
