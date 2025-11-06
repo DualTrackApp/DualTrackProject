@@ -1,0 +1,9 @@
+<resources>
+    <dimen name="dt_screen_pad">24dp</dimen>
+    <dimen name="dt_field_height">44dp</dimen>
+    <dimen name="dt_radius_pill">28dp</dimen>
+    <dimen name="dt_radius_field">10dp</dimen>
+    <dimen name="dt_gap_sm">8dp</dimen>
+    <dimen name="dt_gap_md">12dp</dimen>
+    <dimen name="dt_gap_lg">20dp</dimen>
+</resources>

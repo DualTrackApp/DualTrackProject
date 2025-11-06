@@ -10,7 +10,13 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
+
+    plugins {
+        // Google Services Plugin (Firebase)
+        id("com.google.gms.google-services") version "4.4.2"
+    }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -21,3 +27,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "DualTrack"
 include(":app")
+

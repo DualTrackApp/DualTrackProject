@@ -1,5 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="dt_navy">#0B2B66</color>
+    <color name="dt_orange">#F79A1F</color>
+    <color name="dt_white_60">#FFFFFF</color>
+    <color name="dt_white">#FFFFFF</color>
+    <color name="dt_card">#0E357A</color>
+    <color name="dt_input_bg">#0B2B66</color>
+    <color name="dt_input_stroke">#F79A1F</color>
+    <color name="dt_hint">#CFD8E3</color>
+    <color name="dt_text">#FFFFFF</color>
 </resources>
