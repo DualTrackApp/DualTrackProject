@@ -1,0 +1,10 @@
+<resources>
+    <string-array name="roles_array">
+        <item>Athlete</item>
+        <item>Coach</item>
+    </string-array>
+
+    <string-array name="teams_placeholder">
+        <item>Select team</item>
+    </string-array>
+</resources>

@@ -7,12 +7,26 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.dualtrack.app.ui.auth.LoginFragment"
-        android:label="Login" />
+        android:label="Login">
+        <action
+            android:id="@+id/action_login_to_athleteHome"
+            app:destination="@id/athleteHomeFragment" />
+        <action
+            android:id="@+id/action_login_to_coachHome"
+            app:destination="@id/coachHomeFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.dualtrack.app.ui.auth.RegisterFragment"
-        android:label="Register" />
+        android:label="Register">
+        <action
+            android:id="@+id/action_register_to_athleteHome"
+            app:destination="@id/athleteHomeFragment" />
+        <action
+            android:id="@+id/action_register_to_coachHome"
+            app:destination="@id/coachHomeFragment" />
+    </fragment>
 
     <fragment
         android:id="@+id/forgotPasswordFragment"
@@ -23,4 +37,14 @@
         android:id="@+id/homeFragment"
         android:name="com.dualtrack.app.ui.home.HomeFragment"
         android:label="Home" />
+
+    <fragment
+        android:id="@+id/athleteHomeFragment"
+        android:name="com.dualtrack.app.ui.home.AthleteHomeFragment"
+        android:label="Athlete Home" />
+
+    <fragment
+        android:id="@+id/coachHomeFragment"
+        android:name="com.dualtrack.app.ui.home.CoachHomeFragment"
+        android:label="Coach Home" />
 </navigation>

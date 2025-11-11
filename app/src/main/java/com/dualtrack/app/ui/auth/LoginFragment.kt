@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.dualtrack.app.R
@@ -19,6 +20,11 @@ class LoginFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val roles = listOf("Athlete", "Coach")
+        val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
+        roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        b.spRoleLogin.adapter = roleAdapter
+
         b.btnLogin.setOnClickListener { findNavController().navigate(R.id.homeFragment) }
         b.btnRegisterNav.setOnClickListener { findNavController().navigate(R.id.registerFragment) }
         b.btnForgotPasswordNav.setOnClickListener { findNavController().navigate(R.id.forgotPasswordFragment) }
