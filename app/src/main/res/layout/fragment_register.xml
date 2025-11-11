@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -18,34 +19,86 @@
         android:id="@+id/tvTitle"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Select your role and team"
-        android:textColor="@color/dt_white"
-        android:textSize="22sp"
+        android:text="Create your account"
+        android:textColor="@color/dt_text"
         android:textStyle="bold"
+        android:textSize="20sp"
         app:layout_constraintTop_toBottomOf="@id/logo"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="36dp" />
+        android:layout_marginTop="24dp" />
+
+    <EditText
+        android:id="@+id/etEmailRegister"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:imeOptions="actionNext"
+        android:textColor="@color/dt_white"
+        android:textColorHint="@color/dt_white_60"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:background="@drawable/bg_edit_outline"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="16dp" />
+
+    <EditText
+        android:id="@+id/etPasswordRegister"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:imeOptions="actionNext"
+        android:textColor="@color/dt_white"
+        android:textColorHint="@color/dt_white_60"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:background="@drawable/bg_edit_outline"
+        app:layout_constraintTop_toBottomOf="@id/etEmailRegister"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp" />
+
+    <EditText
+        android:id="@+id/etConfirmPasswordRegister"
+        android:layout_width="0dp"
+        android:layout_height="44dp"
+        android:hint="Confirm Password"
+        android:inputType="textPassword"
+        android:imeOptions="actionNext"
+        android:textColor="@color/dt_white"
+        android:textColorHint="@color/dt_white_60"
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:background="@drawable/bg_edit_outline"
+        app:layout_constraintTop_toBottomOf="@id/etPasswordRegister"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp" />
 
     <Spinner
         android:id="@+id/spRoleRegister"
         android:layout_width="0dp"
         android:layout_height="44dp"
+        android:entries="@array/roles_array"
         android:background="@drawable/bg_spinner_white"
-        app:layout_constraintTop_toBottomOf="@id/tvTitle"
+        app:layout_constraintTop_toBottomOf="@id/etConfirmPasswordRegister"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="12dp" />
 
     <Spinner
         android:id="@+id/spTeamRegister"
         android:layout_width="0dp"
         android:layout_height="44dp"
-        android:background="@drawable/bg_spinner_white"
+        android:background="@drawable/dt_spinner_bg"
         app:layout_constraintTop_toBottomOf="@id/spRoleRegister"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="12dp" />
 
     <Button
         android:id="@+id/btnContinueRegister"
@@ -54,7 +107,7 @@
         android:text="Continue"
         android:textAllCaps="false"
         android:textStyle="bold"
-        android:textColor="@color/dt_orange"
+        android:textColor="@color/dt_black"
         android:background="@drawable/bg_button_white_pill"
         app:backgroundTint="@null"
         app:layout_constraintTop_toBottomOf="@id/spTeamRegister"
@@ -69,11 +122,12 @@
         android:text="Back"
         android:textAllCaps="false"
         android:textStyle="bold"
-        android:textColor="@color/dt_orange"
+        android:textColor="@color/dt_black"
         android:background="@drawable/bg_button_white_pill"
         app:backgroundTint="@null"
         app:layout_constraintTop_toBottomOf="@id/btnContinueRegister"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

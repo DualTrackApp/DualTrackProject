@@ -1,0 +1,11 @@
+<resources>
+
+    <style name="SpinnerTextBlack" parent="@android:style/Widget.Spinner">
+        <item name="android:textColor">@color/dt_black</item>
+    </style>
+
+    <style name="SpinnerPopupBlack" parent="@android:style/Widget.PopupMenu">
+        <item name="android:textColor">@color/dt_black</item>
+    </style>
+
+</resources>
