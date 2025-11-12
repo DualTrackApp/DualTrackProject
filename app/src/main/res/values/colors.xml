@@ -7,7 +7,7 @@
     <color name="dt_input_bg">#0B2B66</color>
     <color name="dt_input_stroke">#F79A1F</color>
     <color name="dt_hint">#CFD8E3</color>
-    <color name="dt_text">#FFFFFF</color>
+    <color name="dt_text">#222222</color>
     <color name="dt_black">#000000</color>
 
 </resources>
