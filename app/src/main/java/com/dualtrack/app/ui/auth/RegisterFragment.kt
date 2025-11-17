@@ -30,8 +30,19 @@ class RegisterFragment : Fragment() {
         teamAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         b.spTeamRegister.adapter = teamAdapter
 
-        b.btnContinueRegister.setOnClickListener { findNavController().navigate(R.id.loginFragment) }
-        b.btnBackRegister.setOnClickListener { findNavController().navigateUp() }
+        b.btnContinueRegister.setOnClickListener {
+            val selectedRole = b.spRoleRegister.selectedItem.toString()
+
+            if (selectedRole == "Athlete") {
+                findNavController().navigate(R.id.action_register_to_athleteHome)
+            } else {
+                findNavController().navigate(R.id.action_register_to_coachHome)
+            }
+        }
+
+        b.btnBackRegister.setOnClickListener {
+            findNavController().navigateUp()
+        }
     }
 
     override fun onDestroyView() {

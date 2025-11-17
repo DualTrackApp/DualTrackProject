@@ -1,19 +1,159 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nsAthleteHome"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/dt_navy">
+    android:background="@color/dt_navy"
+    android:fillViewport="true"
+    tools:context=".ui.home.AthleteHomeFragment">
 
-    <TextView
-        android:id="@+id/tvHomeAthlete"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Athlete Home"
-        android:textColor="@color/dt_white"
-        android:textSize="20sp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="32dp"/>
-</androidx.constraintlayout.widget.ConstraintLayout>
+        android:orientation="vertical"
+        android:padding="@dimen/dt_screen_pad">
+
+        <include
+            android:id="@+id/includeLogo"
+            layout="@layout/include_dualtrack_logo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="@dimen/dt_gap_lg" />
+
+        <TextView
+            android:id="@+id/tvWelcomeTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome, User123!"
+            android:textColor="@color/dt_white"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/dt_gap_md"
+            tools:text="Welcome, User123!" />
+
+        <LinearLayout
+            android:id="@+id/layoutQuickAdd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="@dimen/dt_gap_lg">
+
+            <TextView
+                android:id="@+id/tvQuickAdd"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Quick Add"
+                android:textColor="@color/dt_white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <ImageButton
+                android:id="@+id/btnQuickAdd"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:contentDescription="Quick Add"
+                android:src="@android:drawable/ic_input_add"
+                android:padding="4dp"
+                app:tint="@color/dt_orange" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvFormsHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Forms"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/dt_gap_sm" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvForms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:layout_marginBottom="@dimen/dt_gap_lg"
+            tools:listitem="@layout/item_home_square_card" />
+
+        <TextView
+            android:id="@+id/tvAtRiskHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="At-Risk Alerts"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/dt_gap_sm" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvAtRisk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:layout_marginBottom="@dimen/dt_gap_lg"
+            tools:listitem="@layout/item_home_square_card" />
+
+        <TextView
+            android:id="@+id/tvCalendarHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Weekly Calendar"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/dt_gap_sm" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvCalendar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:layout_marginBottom="@dimen/dt_gap_lg"
+            tools:listitem="@layout/item_home_square_card" />
+
+        <TextView
+            android:id="@+id/tvTasksHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tasks"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/dt_gap_sm" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTasks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:layout_marginBottom="@dimen/dt_gap_lg"
+            tools:listitem="@layout/item_home_square_card" />
+
+        <TextView
+            android:id="@+id/tvWellnessHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Progress &amp; Wellness"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="@dimen/dt_gap_sm" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvWellness"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never"
+            android:layout_marginBottom="@dimen/dt_gap_lg" />
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

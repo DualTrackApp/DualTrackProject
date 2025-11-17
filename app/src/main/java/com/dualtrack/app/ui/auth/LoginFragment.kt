@@ -25,10 +25,25 @@ class LoginFragment : Fragment() {
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         b.spRoleLogin.adapter = roleAdapter
 
-        b.btnLogin.setOnClickListener { findNavController().navigate(R.id.homeFragment) }
-        b.btnRegisterNav.setOnClickListener { findNavController().navigate(R.id.registerFragment) }
-        b.btnForgotPasswordNav.setOnClickListener { findNavController().navigate(R.id.forgotPasswordFragment) }
+        b.btnLogin.setOnClickListener {
+            val selectedRole = b.spRoleLogin.selectedItem.toString()
+
+            if (selectedRole == "Athlete") {
+                findNavController().navigate(R.id.action_login_to_athleteHome)
+            } else {
+                findNavController().navigate(R.id.action_login_to_coachHome)
+            }
+        }
+
+        b.btnRegisterNav.setOnClickListener {
+            findNavController().navigate(R.id.registerFragment)
+        }
+
+        b.btnForgotPasswordNav.setOnClickListener {
+            findNavController().navigate(R.id.forgotPasswordFragment)
+        }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
