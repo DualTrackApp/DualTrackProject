@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dt_navy">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="24dp">
+
+        <include
+            android:id="@+id/logo"
+            layout="@layout/include_dualtrack_logo"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!-- Welcome Coach -->
+        <TextView
+            android:id="@+id/tvWelcome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Welcome Coach"
+            android:textColor="@color/dt_white"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:layout_marginTop="24dp"
+            app:layout_constraintTop_toBottomOf="@id/logo"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <!-- Create Announcement -->
+        <Button
+            android:id="@+id/btnAddAnnouncement"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Announcement"
+            android:textAllCaps="false"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toBottomOf="@id/tvWelcome"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/bg_button_white_pill"
+            android:textColor="@color/dt_navy"/>
+
+        <!-- Add Event -->
+        <Button
+            android:id="@+id/btnAddEvent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Add Event"
+            android:layout_marginStart="16dp"
+            android:textAllCaps="false"
+            app:layout_constraintTop_toBottomOf="@id/tvWelcome"
+            app:layout_constraintStart_toEndOf="@id/btnAddAnnouncement"
+            android:background="@drawable/bg_button_white_pill"
+            android:textColor="@color/dt_navy"/>
+
+        <!-- Athlete Assignment Section -->
+        <TextView
+            android:id="@+id/tvAssignTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Athlete Assignment"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp"
+            app:layout_constraintTop_toBottomOf="@id/btnAddAnnouncement"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <Button
+            android:id="@+id/btnAssignAthlete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Assign Athlete"
+            android:textAllCaps="false"
+            android:layout_marginTop="12dp"
+            app:layout_constraintTop_toBottomOf="@id/tvAssignTitle"
+            app:layout_constraintStart_toStartOf="parent"
+            android:background="@drawable/bg_button_white_pill"
+            android:textColor="@color/dt_navy"/>
+
+        <!-- At-Risk Flags -->
+        <TextView
+            android:id="@+id/tvAtRisk"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="At-Risk Flags"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp"
+            app:layout_constraintTop_toBottomOf="@id/btnAssignAthlete"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <!-- Simple placeholder row -->
+        <TextView
+            android:id="@+id/tvAtRiskPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="(Flags will appear here)"
+            android:textColor="@color/dt_white"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvAtRisk"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <!-- Wellness Trends -->
+        <TextView
+            android:id="@+id/tvWellness"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Wellness Trends"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginTop="32dp"
+            app:layout_constraintTop_toBottomOf="@id/tvAtRiskPlaceholder"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <TextView
+            android:id="@+id/tvWellnessPlaceholder"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="(Wellness data will appear here)"
+            android:textColor="@color/dt_white"
+            android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@id/tvWellness"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <!-- Manage Team -->
+        <Button
+            android:id="@+id/btnManageTeam"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Manage Team"
+            android:textAllCaps="false"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/bg_button_white_pill"
+            android:textColor="@color/dt_navy"
+            app:layout_constraintTop_toBottomOf="@id/tvWellnessPlaceholder"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
