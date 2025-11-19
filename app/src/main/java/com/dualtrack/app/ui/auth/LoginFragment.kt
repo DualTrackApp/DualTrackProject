@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentLoginBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 
 class LoginFragment : Fragment() {
 
@@ -49,24 +50,57 @@ class LoginFragment : Fragment() {
     private fun loginUser() {
         val email = b.etEmail.text.toString().trim()
         val password = b.etPassword.text.toString().trim()
-        val role = b.spRoleLogin.selectedItem?.toString() ?: ""
+        val selectedRole = b.spRoleLogin.selectedItem?.toString() ?: ""
 
         if (email.isEmpty()) {
-            b.etEmail.error = "Required"
+            b.etEmail.error = "Email is required"
             return
         }
-        if (!email.endsWith("@vsu.edu")) {
-            b.etEmail.error = "Use your VSU email"
+        if (!isValidVSUEmail(email)) {
+            b.etEmail.error = "Use your VSU email (@vsu.edu or @students.vsu.edu)"
             return
         }
         if (password.isEmpty()) {
-            b.etPassword.error = "Required"
+            b.etPassword.error = "Password is required"
             return
         }
 
         auth.signInWithEmailAndPassword(email, password)
             .addOnSuccessListener {
-                if (role == "Coach") {
+                val user = auth.currentUser
+                val storedRole = user?.displayName
+
+
+                if (storedRole.isNullOrBlank() && selectedRole.isNotBlank()) {
+                    val updates = UserProfileChangeRequest.Builder()
+                        .setDisplayName(selectedRole)
+                        .build()
+                    user?.updateProfile(updates)
+                }
+
+                val finalRole = if (!storedRole.isNullOrBlank()) storedRole else selectedRole
+
+                if (finalRole.isNullOrBlank()) {
+                    Toast.makeText(
+                        requireContext(),
+                        "Unable to determine your role. Please contact support.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@addOnSuccessListener
+                }
+
+
+                if (!finalRole.equals(selectedRole, ignoreCase = true)) {
+                    Toast.makeText(
+                        requireContext(),
+                        "This account is registered as $finalRole. Switch role to log in.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@addOnSuccessListener
+                }
+
+
+                if (finalRole.equals("Coach", ignoreCase = true)) {
                     findNavController().navigate(R.id.action_login_to_coachHome)
                 } else {
                     findNavController().navigate(R.id.action_login_to_athleteHome)
@@ -75,6 +109,11 @@ class LoginFragment : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun isValidVSUEmail(email: String): Boolean {
+        return email.endsWith("@vsu.edu", ignoreCase = true) ||
+                email.endsWith("@students.vsu.edu", ignoreCase = true)
     }
 
     override fun onDestroyView() {

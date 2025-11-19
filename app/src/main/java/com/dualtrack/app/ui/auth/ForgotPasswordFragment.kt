@@ -30,11 +30,11 @@ class ForgotPasswordFragment : Fragment() {
             val email = b.etEmailReset.text?.toString()?.trim().orEmpty()
 
             if (email.isEmpty()) {
-                b.etEmailReset.error = "Required"
+                b.etEmailReset.error = "Email is required"
                 return@setOnClickListener
             }
-            if (!email.endsWith("@vsu.edu")) {
-                b.etEmailReset.error = "Use your VSU email"
+            if (!isValidVSUEmail(email)) {
+                b.etEmailReset.error = "Use your VSU email (@vsu.edu or @students.vsu.edu)"
                 return@setOnClickListener
             }
 
@@ -50,6 +50,11 @@ class ForgotPasswordFragment : Fragment() {
         b.btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
+    }
+
+    private fun isValidVSUEmail(email: String): Boolean {
+        return email.endsWith("@vsu.edu", ignoreCase = true) ||
+                email.endsWith("@students.vsu.edu", ignoreCase = true)
     }
 
     override fun onDestroyView() {

@@ -11,6 +11,7 @@ import androidx.navigation.fragment.findNavController
 import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentRegisterBinding
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.UserProfileChangeRequest
 
 class RegisterFragment : Fragment() {
 
@@ -55,19 +56,26 @@ class RegisterFragment : Fragment() {
         val role = b.spRoleRegister.selectedItem?.toString() ?: ""
 
         if (email.isEmpty()) {
-            b.etEmailRegister.error = "Required"
+            b.etEmailRegister.error = "Email is required"
             return
         }
-        if (!email.endsWith("@vsu.edu")) {
-            b.etEmailRegister.error = "Use your VSU email"
+        if (!isValidVSUEmail(email)) {
+            b.etEmailRegister.error = "Use your VSU email (@vsu.edu or @students.vsu.edu)"
             return
         }
+
         if (password.isEmpty()) {
-            b.etPasswordRegister.error = "Required"
+            b.etPasswordRegister.error = "Password is required"
             return
         }
-        if (password.length < 6) {
-            b.etPasswordRegister.error = "Minimum 6 characters"
+        if (!isStrongPassword(password)) {
+            b.etPasswordRegister.error =
+                "Password must be 8+ chars with upper, lower, number, and symbol"
+            return
+        }
+
+        if (confirmPassword.isEmpty()) {
+            b.etConfirmPasswordRegister.error = "Confirm your password"
             return
         }
         if (confirmPassword != password) {
@@ -77,6 +85,16 @@ class RegisterFragment : Fragment() {
 
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener {
+                val user = auth.currentUser
+
+                // Store the role in the user's Firebase Auth profile
+                if (user != null && role.isNotBlank()) {
+                    val updates = UserProfileChangeRequest.Builder()
+                        .setDisplayName(role)
+                        .build()
+                    user.updateProfile(updates)
+                }
+
                 if (role == "Coach") {
                     findNavController().navigate(R.id.action_register_to_coachHome)
                 } else {
@@ -86,6 +104,31 @@ class RegisterFragment : Fragment() {
             .addOnFailureListener {
                 Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
             }
+    }
+
+    private fun isValidVSUEmail(email: String): Boolean {
+        return email.endsWith("@vsu.edu", ignoreCase = true) ||
+                email.endsWith("@students.vsu.edu", ignoreCase = true)
+    }
+
+    private fun isStrongPassword(password: String): Boolean {
+        if (password.length < 8) return false
+
+        var hasUpper = false
+        var hasLower = false
+        var hasDigit = false
+        var hasSymbol = false
+
+        for (c in password) {
+            when {
+                c.isUpperCase() -> hasUpper = true
+                c.isLowerCase() -> hasLower = true
+                c.isDigit() -> hasDigit = true
+                !c.isLetterOrDigit() -> hasSymbol = true
+            }
+        }
+
+        return hasUpper && hasLower && hasDigit && hasSymbol
     }
 
     override fun onDestroyView() {
