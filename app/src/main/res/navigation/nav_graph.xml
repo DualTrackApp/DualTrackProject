@@ -50,4 +50,11 @@
         android:label="Coach Dashboard"
         tools:layout="@layout/fragment_coach_dashboard"/>
 
+    <fragment
+        android:id="@+id/absenceFormFragment"
+        android:name="com.dualtrack.app.ui.forms.AbsenceFormFragment"
+        android:label="Absence Form"
+        tools:layout="@layout/fragment_absence_form" />
+
+
 </navigation>

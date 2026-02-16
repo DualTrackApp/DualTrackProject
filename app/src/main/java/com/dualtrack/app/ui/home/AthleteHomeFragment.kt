@@ -6,8 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentHomeAthleteBinding
 
 class AthleteHomeFragment : Fragment() {
@@ -51,8 +53,22 @@ class AthleteHomeFragment : Fragment() {
         recyclerView.isNestedScrollingEnabled = false
         recyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
         recyclerView.adapter = HomeCardAdapter(items) { card ->
-            Toast.makeText(requireContext(), card.title, Toast.LENGTH_SHORT).show()
+            handleCardClick(card)
+        }
+    }
+
+    private fun handleCardClick(card: HomeCard) {
+        when (card.title) {
+
+            "Absence Form" -> {
+                findNavController().navigate(R.id.absenceFormFragment)
+            }
+
+            else -> {
+                Toast.makeText(requireContext(), card.title, Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
