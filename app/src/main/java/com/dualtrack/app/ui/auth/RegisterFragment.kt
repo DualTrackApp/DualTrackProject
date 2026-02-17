@@ -10,14 +10,18 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentRegisterBinding
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class RegisterFragment : Fragment() {
 
     private var _b: FragmentRegisterBinding? = null
     private val b get() = _b!!
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,6 +30,7 @@ class RegisterFragment : Fragment() {
     ): View {
         _b = FragmentRegisterBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
         return b.root
     }
 
@@ -54,6 +59,7 @@ class RegisterFragment : Fragment() {
         val password = b.etPasswordRegister.text.toString().trim()
         val confirmPassword = b.etConfirmPasswordRegister.text.toString().trim()
         val role = b.spRoleRegister.selectedItem?.toString() ?: ""
+        val team = b.spTeamRegister.selectedItem?.toString() ?: ""
 
         if (email.isEmpty()) {
             b.etEmailRegister.error = "Email is required"
@@ -87,7 +93,6 @@ class RegisterFragment : Fragment() {
             .addOnSuccessListener {
                 val user = auth.currentUser
 
-                // Store the role in the user's Firebase Auth profile
                 if (user != null && role.isNotBlank()) {
                     val updates = UserProfileChangeRequest.Builder()
                         .setDisplayName(role)
@@ -95,14 +100,48 @@ class RegisterFragment : Fragment() {
                     user.updateProfile(updates)
                 }
 
-                if (role == "Coach") {
-                    findNavController().navigate(R.id.action_register_to_coachHome)
-                } else {
-                    findNavController().navigate(R.id.action_register_to_athleteHome)
+                createUserDoc(
+                    uid = user?.uid,
+                    email = email,
+                    role = role,
+                    teamName = team
+                ) { ok ->
+                    if (!ok) return@createUserDoc
+
+                    if (role.equals("Coach", ignoreCase = true)) {
+                        findNavController().navigate(R.id.action_register_to_coachHome)
+                    } else {
+                        findNavController().navigate(R.id.action_register_to_athleteHome)
+                    }
                 }
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun createUserDoc(uid: String?, email: String, role: String, teamName: String, onDone: (Boolean) -> Unit) {
+        if (uid.isNullOrBlank()) {
+            Toast.makeText(requireContext(), "Registration error: missing user ID.", Toast.LENGTH_SHORT).show()
+            onDone(false)
+            return
+        }
+
+        val data = hashMapOf(
+            "userId" to uid,
+            "email" to email,
+            "role" to role.lowercase(),
+            "teamName" to teamName,
+            "createdAt" to Timestamp.now(),
+            "updatedAt" to Timestamp.now()
+        )
+
+        db.collection("users").document(uid)
+            .set(data, SetOptions.merge())
+            .addOnSuccessListener { onDone(true) }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Firestore write failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                onDone(false)
             }
     }
 
@@ -136,3 +175,4 @@ class RegisterFragment : Fragment() {
         _b = null
     }
 }
+

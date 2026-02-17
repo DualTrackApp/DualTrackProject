@@ -10,14 +10,18 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentLoginBinding
+import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 
 class LoginFragment : Fragment() {
 
     private var _b: FragmentLoginBinding? = null
     private val b get() = _b!!
     private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -26,6 +30,7 @@ class LoginFragment : Fragment() {
     ): View {
         _b = FragmentLoginBinding.inflate(inflater, container, false)
         auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
         return b.root
     }
 
@@ -70,7 +75,6 @@ class LoginFragment : Fragment() {
                 val user = auth.currentUser
                 val storedRole = user?.displayName
 
-
                 if (storedRole.isNullOrBlank() && selectedRole.isNotBlank()) {
                     val updates = UserProfileChangeRequest.Builder()
                         .setDisplayName(selectedRole)
@@ -89,7 +93,6 @@ class LoginFragment : Fragment() {
                     return@addOnSuccessListener
                 }
 
-
                 if (!finalRole.equals(selectedRole, ignoreCase = true)) {
                     Toast.makeText(
                         requireContext(),
@@ -99,15 +102,56 @@ class LoginFragment : Fragment() {
                     return@addOnSuccessListener
                 }
 
+                createOrUpdateUserDoc(
+                    uid = user?.uid,
+                    email = email,
+                    role = finalRole
+                ) { ok ->
+                    if (!ok) return@createOrUpdateUserDoc
 
-                if (finalRole.equals("Coach", ignoreCase = true)) {
-                    findNavController().navigate(R.id.action_login_to_coachHome)
-                } else {
-                    findNavController().navigate(R.id.action_login_to_athleteHome)
+                    if (finalRole.equals("Coach", ignoreCase = true)) {
+                        findNavController().navigate(R.id.action_login_to_coachHome)
+                    } else {
+                        findNavController().navigate(R.id.action_login_to_athleteHome)
+                    }
                 }
             }
             .addOnFailureListener {
                 Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun createOrUpdateUserDoc(uid: String?, email: String, role: String, onDone: (Boolean) -> Unit) {
+        if (uid.isNullOrBlank()) {
+            Toast.makeText(requireContext(), "Login error: missing user ID.", Toast.LENGTH_SHORT).show()
+            onDone(false)
+            return
+        }
+
+        val data = hashMapOf(
+            "userId" to uid,
+            "email" to email,
+            "role" to role.lowercase(),
+            "updatedAt" to Timestamp.now()
+        )
+
+        val userRef = db.collection("users").document(uid)
+
+        userRef.get()
+            .addOnSuccessListener { snap ->
+                if (!snap.exists()) {
+                    data["createdAt"] = Timestamp.now()
+                }
+                userRef.set(data, SetOptions.merge())
+                    .addOnSuccessListener { onDone(true) }
+                    .addOnFailureListener {
+                        Toast.makeText(requireContext(), "Firestore write failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                        onDone(false)
+                    }
+            }
+            .addOnFailureListener {
+                Toast.makeText(requireContext(), "Firestore read failed: ${it.message}", Toast.LENGTH_SHORT).show()
+                onDone(false)
             }
     }
 
@@ -121,3 +165,4 @@ class LoginFragment : Fragment() {
         _b = null
     }
 }
+
