@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -47,6 +48,15 @@ class RegisterFragment : Fragment() {
         teamAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         b.spTeamRegister.adapter = teamAdapter
 
+        b.spRoleRegister.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, v: View?, position: Int, id: Long) {
+                updateTeamVisibility()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
+
+        updateTeamVisibility()
+
         b.btnContinueRegister.setOnClickListener { registerUser() }
 
         b.btnBackRegister.setOnClickListener {
@@ -54,12 +64,16 @@ class RegisterFragment : Fragment() {
         }
     }
 
+    private fun updateTeamVisibility() {
+        val role = b.spRoleRegister.selectedItem?.toString() ?: ""
+        b.spTeamRegister.visibility = if (role.equals("Coach", ignoreCase = true)) View.VISIBLE else View.GONE
+    }
+
     private fun registerUser() {
         val email = b.etEmailRegister.text.toString().trim()
         val password = b.etPasswordRegister.text.toString().trim()
         val confirmPassword = b.etConfirmPasswordRegister.text.toString().trim()
         val role = b.spRoleRegister.selectedItem?.toString() ?: ""
-        val team = b.spTeamRegister.selectedItem?.toString() ?: ""
 
         if (email.isEmpty()) {
             b.etEmailRegister.error = "Email is required"
@@ -89,6 +103,12 @@ class RegisterFragment : Fragment() {
             return
         }
 
+        val teamName = if (role.equals("Coach", ignoreCase = true)) {
+            b.spTeamRegister.selectedItem?.toString() ?: ""
+        } else {
+            ""
+        }
+
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener {
                 val user = auth.currentUser
@@ -104,7 +124,7 @@ class RegisterFragment : Fragment() {
                     uid = user?.uid,
                     email = email,
                     role = role,
-                    teamName = team
+                    teamName = teamName
                 ) { ok ->
                     if (!ok) return@createUserDoc
 
@@ -120,21 +140,30 @@ class RegisterFragment : Fragment() {
             }
     }
 
-    private fun createUserDoc(uid: String?, email: String, role: String, teamName: String, onDone: (Boolean) -> Unit) {
+    private fun createUserDoc(
+        uid: String?,
+        email: String,
+        role: String,
+        teamName: String,
+        onDone: (Boolean) -> Unit
+    ) {
         if (uid.isNullOrBlank()) {
             Toast.makeText(requireContext(), "Registration error: missing user ID.", Toast.LENGTH_SHORT).show()
             onDone(false)
             return
         }
 
-        val data = hashMapOf(
+        val data = hashMapOf<String, Any>(
             "userId" to uid,
             "email" to email,
             "role" to role.lowercase(),
-            "teamName" to teamName,
             "createdAt" to Timestamp.now(),
             "updatedAt" to Timestamp.now()
         )
+
+        if (role.equals("Coach", ignoreCase = true) && teamName.isNotBlank()) {
+            data["teamName"] = teamName
+        }
 
         db.collection("users").document(uid)
             .set(data, SetOptions.merge())
@@ -175,4 +204,3 @@ class RegisterFragment : Fragment() {
         _b = null
     }
 }
-
