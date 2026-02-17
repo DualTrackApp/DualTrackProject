@@ -43,14 +43,14 @@ class AbsenceFormFragment : Fragment() {
 
         val user = auth.currentUser
         if (user == null) {
-            // User not logged in → do nothing or show error
+            b.btnSubmitAbsence.text = "Not Logged In"
             return
         }
 
         val formData = hashMapOf(
             "formType" to "absence",
             "athleteId" to user.uid,
-            "teamId" to "TEMP_TEAM_ID", // TODO: replace once roster works
+            "teamId" to "TEMP_TEAM_ID", // TODO: replace when team roster feature is built
             "submittedAt" to Timestamp.now(),
             "data" to mapOf(
                 "reason" to reason,
@@ -59,7 +59,7 @@ class AbsenceFormFragment : Fragment() {
             )
         )
 
-        db.collection("com/dualtrack/app/ui/forms")
+        db.collection("forms")
             .add(formData)
             .addOnSuccessListener {
                 b.btnSubmitAbsence.text = "Submitted ✓"
