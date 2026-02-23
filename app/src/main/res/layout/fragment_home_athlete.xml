@@ -36,6 +36,16 @@
             android:layout_marginBottom="@dimen/dt_gap_md"
             tools:text="Welcome, User123!" />
 
+        <TextView
+            android:id="@+id/tvTeamStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Team Assigned"
+            android:textColor="@color/dt_white_60"
+            android:textSize="14sp"
+            android:layout_marginBottom="@dimen/dt_gap_lg"
+            tools:text="Team: Baseball" />
+
         <LinearLayout
             android:id="@+id/layoutQuickAdd"
             android:layout_width="match_parent"

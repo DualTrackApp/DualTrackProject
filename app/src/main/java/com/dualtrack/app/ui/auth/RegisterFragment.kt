@@ -4,7 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -36,37 +35,18 @@ class RegisterFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         val roles = listOf("Athlete", "Coach")
-        val roleAdapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
+        val roleAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, roles)
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         b.spRoleRegister.adapter = roleAdapter
-
-        val teams = listOf("Team 1", "Team 2", "Team 3")
-        val teamAdapter =
-            ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, teams)
-        teamAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        b.spTeamRegister.adapter = teamAdapter
-
-        b.spRoleRegister.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, v: View?, position: Int, id: Long) {
-                updateTeamVisibility()
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
-
-        updateTeamVisibility()
 
         b.btnContinueRegister.setOnClickListener { registerUser() }
 
         b.btnBackRegister.setOnClickListener {
             findNavController().navigateUp()
         }
-    }
-
-    private fun updateTeamVisibility() {
-        val role = b.spRoleRegister.selectedItem?.toString() ?: ""
-        b.spTeamRegister.visibility = if (role.equals("Coach", ignoreCase = true)) View.VISIBLE else View.GONE
     }
 
     private fun registerUser() {
@@ -103,16 +83,11 @@ class RegisterFragment : Fragment() {
             return
         }
 
-        val teamName = if (role.equals("Coach", ignoreCase = true)) {
-            b.spTeamRegister.selectedItem?.toString() ?: ""
-        } else {
-            ""
-        }
-
         auth.createUserWithEmailAndPassword(email, password)
             .addOnSuccessListener {
                 val user = auth.currentUser
 
+                // (Your existing pattern) store the chosen role in displayName
                 if (user != null && role.isNotBlank()) {
                     val updates = UserProfileChangeRequest.Builder()
                         .setDisplayName(role)
@@ -123,8 +98,7 @@ class RegisterFragment : Fragment() {
                 createUserDoc(
                     uid = user?.uid,
                     email = email,
-                    role = role,
-                    teamName = teamName
+                    role = role
                 ) { ok ->
                     if (!ok) return@createUserDoc
 
@@ -144,7 +118,6 @@ class RegisterFragment : Fragment() {
         uid: String?,
         email: String,
         role: String,
-        teamName: String,
         onDone: (Boolean) -> Unit
     ) {
         if (uid.isNullOrBlank()) {
@@ -160,10 +133,6 @@ class RegisterFragment : Fragment() {
             "createdAt" to Timestamp.now(),
             "updatedAt" to Timestamp.now()
         )
-
-        if (role.equals("Coach", ignoreCase = true) && teamName.isNotBlank()) {
-            data["teamName"] = teamName
-        }
 
         db.collection("users").document(uid)
             .set(data, SetOptions.merge())

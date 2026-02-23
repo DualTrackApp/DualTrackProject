@@ -11,11 +11,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentHomeAthleteBinding
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class AthleteHomeFragment : Fragment() {
 
     private var _b: FragmentHomeAthleteBinding? = null
     private val b get() = _b!!
+
+    private lateinit var auth: FirebaseAuth
+    private lateinit var db: FirebaseFirestore
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,7 +29,11 @@ class AthleteHomeFragment : Fragment() {
     ): View {
         _b = FragmentHomeAthleteBinding.inflate(inflater, container, false)
 
+        auth = FirebaseAuth.getInstance()
+        db = FirebaseFirestore.getInstance()
+
         setupWelcome()
+        loadTeamStatus()
         setupQuickAdd()
         setupRecyclerViews()
 
@@ -32,7 +41,71 @@ class AthleteHomeFragment : Fragment() {
     }
 
     private fun setupWelcome() {
-        b.tvWelcomeTitle.text = "Welcome, User123!"
+        val email = auth.currentUser?.email
+        val name = email?.substringBefore("@").orEmpty().ifBlank { "Athlete" }
+        b.tvWelcomeTitle.text = "Welcome, $name!"
+    }
+
+    private fun loadTeamStatus() {
+        val uid = auth.currentUser?.uid
+        val email = auth.currentUser?.email
+
+        if (uid.isNullOrBlank()) {
+            b.tvTeamStatus.text = "No Team Assigned"
+            return
+        }
+
+        db.collection("users").document(uid)
+            .get()
+            .addOnSuccessListener { snap ->
+                val teamName = snap.getString("teamName")
+                val teamId = snap.getString("teamId")
+
+                if (!teamName.isNullOrBlank()) {
+                    b.tvTeamStatus.text = "Team: $teamName"
+                    return@addOnSuccessListener
+                }
+
+                if (!teamId.isNullOrBlank()) {
+                    // Fallback: resolve team name from teams/{teamId}
+                    db.collection("teams").document(teamId)
+                        .get()
+                        .addOnSuccessListener { teamSnap ->
+                            val resolvedName = teamSnap.getString("teamName")
+                            b.tvTeamStatus.text = if (!resolvedName.isNullOrBlank()) "Team: $resolvedName" else "Team Assigned"
+                        }
+                        .addOnFailureListener {
+                            b.tvTeamStatus.text = "Team Assigned"
+                        }
+                    return@addOnSuccessListener
+                }
+
+                // Optional: Invitation pending
+                if (!email.isNullOrBlank()) {
+                    db.collection("teamInvites")
+                        .whereEqualTo("email", email)
+                        .whereEqualTo("status", "pending")
+                        .limit(1)
+                        .get()
+                        .addOnSuccessListener { qs ->
+                            val invite = qs.documents.firstOrNull()
+                            val invitedTeamName = invite?.getString("teamName")
+                            b.tvTeamStatus.text = if (!invitedTeamName.isNullOrBlank()) {
+                                "Invitation pending: $invitedTeamName"
+                            } else {
+                                "Invitation pending"
+                            }
+                        }
+                        .addOnFailureListener {
+                            b.tvTeamStatus.text = "No Team Assigned"
+                        }
+                } else {
+                    b.tvTeamStatus.text = "No Team Assigned"
+                }
+            }
+            .addOnFailureListener {
+                b.tvTeamStatus.text = "No Team Assigned"
+            }
     }
 
     private fun setupQuickAdd() {
@@ -61,14 +134,8 @@ class AthleteHomeFragment : Fragment() {
 
     private fun handleCardClick(card: HomeCard) {
         when (card.title) {
-
-            "Absence Form" -> {
-                findNavController().navigate(R.id.absenceFormFragment)
-            }
-
-            else -> {
-                Toast.makeText(requireContext(), card.title, Toast.LENGTH_SHORT).show()
-            }
+            "Absence Form" -> findNavController().navigate(R.id.absenceFormFragment)
+            else -> Toast.makeText(requireContext(), card.title, Toast.LENGTH_SHORT).show()
         }
     }
 
