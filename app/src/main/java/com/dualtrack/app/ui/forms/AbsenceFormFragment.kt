@@ -25,15 +25,11 @@ class AbsenceFormFragment : Fragment() {
     ): View {
         _b = FragmentAbsenceFormBinding.inflate(inflater, container, false)
 
-        setupSubmitButton()
-
-        return b.root
-    }
-
-    private fun setupSubmitButton() {
         b.btnSubmitAbsence.setOnClickListener {
             submitAbsenceForm()
         }
+
+        return b.root
     }
 
     private fun submitAbsenceForm() {
@@ -41,17 +37,19 @@ class AbsenceFormFragment : Fragment() {
         val date = b.etDate.text.toString().trim()
         val notes = b.etNotes.text.toString().trim()
 
-        val user = auth.currentUser
-        if (user == null) {
+        val user = auth.currentUser ?: run {
             b.btnSubmitAbsence.text = "Not Logged In"
             return
         }
 
         val formData = hashMapOf(
             "formType" to "absence",
-            "athleteId" to user.uid,
-            "teamId" to "TEMP_TEAM_ID", // TODO: replace when team roster feature is built
-            "submittedAt" to Timestamp.now(),
+            "userId" to user.uid,
+            "userEmail" to user.email,
+            "teamId" to "TEMP_TEAM_ID",
+            "createdAt" to Timestamp.now(),
+            "status" to "pending",
+            "coachNote" to "",
             "data" to mapOf(
                 "reason" to reason,
                 "date" to date,
@@ -63,6 +61,7 @@ class AbsenceFormFragment : Fragment() {
             .add(formData)
             .addOnSuccessListener {
                 b.btnSubmitAbsence.text = "Submitted ✓"
+                b.btnSubmitAbsence.isEnabled = false
             }
             .addOnFailureListener {
                 b.btnSubmitAbsence.text = "Error"

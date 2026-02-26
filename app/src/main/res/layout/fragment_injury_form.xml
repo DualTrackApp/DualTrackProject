@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/etInjury"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Describe injury"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
+    <EditText
+        android:id="@+id/etSeverity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:hint="Severity (mild/moderate/severe)"
+        app:layout_constraintTop_toBottomOf="@id/etInjury"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="12dp"/>
+
+    <Button
+        android:id="@+id/btnSubmitInjury"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Submit Injury Report"
+        app:layout_constraintTop_toBottomOf="@id/etSeverity"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginTop="24dp"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

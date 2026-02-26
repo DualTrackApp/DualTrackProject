@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
+import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentCoachDashboardBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.Timestamp
@@ -44,8 +46,12 @@ class CoachDashboardFragment : Fragment() {
         b.btnManageTeam.setOnClickListener {
             showManageTeamDialog()
         }
-    }
 
+        // 🔽 NEW: navigate to Team Forms screen
+        b.btnTeamForms.setOnClickListener {
+            findNavController().navigate(R.id.action_coachHome_to_coachForms)
+        }
+    }
 
     private fun refreshCoachTeamCache(onDone: (() -> Unit)? = null) {
         val uid = auth.currentUser?.uid ?: return
@@ -57,11 +63,9 @@ class CoachDashboardFragment : Fragment() {
                 onDone?.invoke()
             }
             .addOnFailureListener {
-                // not fatal, but means manage options might show only create
                 onDone?.invoke()
             }
     }
-
 
     private fun showManageTeamDialog() {
         refreshCoachTeamCache {
@@ -109,10 +113,6 @@ class CoachDashboardFragment : Fragment() {
             .show()
     }
 
-    /**
-     * Requirement:
-     * teams/{teamId} -> teamName, coachId, createdAt
-     */
     private fun createTeam(teamName: String) {
         val coachId = auth.currentUser?.uid
         if (coachId.isNullOrBlank()) {
@@ -131,7 +131,6 @@ class CoachDashboardFragment : Fragment() {
 
         teamRef.set(teamData)
             .addOnSuccessListener {
-                // store coach’s teamId/teamName on user doc for quick lookup
                 val coachUpdate = hashMapOf(
                     "teamId" to teamRef.id,
                     "teamName" to teamName,
@@ -154,11 +153,6 @@ class CoachDashboardFragment : Fragment() {
             }
     }
 
-    /**
-     * Coach assigns athlete by email or UID.
-     * - If input has "@" -> search users by email
-     * - else treat as UID
-     */
     private fun showAddAthleteDialog() {
         val teamId = cachedTeamId
         val teamName = cachedTeamName
@@ -214,11 +208,7 @@ class CoachDashboardFragment : Fragment() {
             .addOnSuccessListener { qs ->
                 val doc = qs.documents.firstOrNull()
                 if (doc == null) {
-                    Toast.makeText(
-                        requireContext(),
-                        "No athlete found for $email (they must register first)",
-                        Toast.LENGTH_LONG
-                    ).show()
+                    Toast.makeText(requireContext(), "No athlete found for $email (they must register first)", Toast.LENGTH_LONG).show()
                     return@addOnSuccessListener
                 }
 
@@ -234,12 +224,6 @@ class CoachDashboardFragment : Fragment() {
             }
     }
 
-    /**
-     * Requirement:
-     * When coach adds athlete -> create assignment:
-     * - update users/{athleteUid} with teamId
-     * - AND create teams/{teamId}/roster/{athleteUid} doc
-     */
     private fun assignAthleteByUid(
         athleteUid: String,
         teamId: String,
@@ -255,7 +239,6 @@ class CoachDashboardFragment : Fragment() {
                     return@addOnSuccessListener
                 }
 
-                // update athlete user doc
                 val update = hashMapOf<String, Any>(
                     "teamId" to teamId,
                     "assignedAt" to Timestamp.now(),
@@ -266,7 +249,6 @@ class CoachDashboardFragment : Fragment() {
 
                 userRef.set(update, SetOptions.merge())
                     .addOnSuccessListener {
-                        // write roster doc under team
                         val rosterData = hashMapOf(
                             "teamId" to teamId,
                             "userId" to athleteUid,
@@ -281,11 +263,7 @@ class CoachDashboardFragment : Fragment() {
                                 Toast.makeText(requireContext(), "Athlete assigned!", Toast.LENGTH_SHORT).show()
                             }
                             .addOnFailureListener { e ->
-                                Toast.makeText(
-                                    requireContext(),
-                                    "Assigned user, but roster write failed: ${e.message}",
-                                    Toast.LENGTH_LONG
-                                ).show()
+                                Toast.makeText(requireContext(), "Assigned user, but roster write failed: ${e.message}", Toast.LENGTH_LONG).show()
                             }
                     }
                     .addOnFailureListener { e ->

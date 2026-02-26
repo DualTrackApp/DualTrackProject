@@ -67,7 +67,6 @@ class AthleteHomeFragment : Fragment() {
                 }
 
                 if (!teamId.isNullOrBlank()) {
-                    // Fallback: resolve team name from teams/{teamId}
                     db.collection("teams").document(teamId)
                         .get()
                         .addOnSuccessListener { teamSnap ->
@@ -80,7 +79,6 @@ class AthleteHomeFragment : Fragment() {
                     return@addOnSuccessListener
                 }
 
-                // Optional: Invitation pending
                 if (!email.isNullOrBlank()) {
                     db.collection("teamInvites")
                         .whereEqualTo("email", email)
@@ -135,15 +133,20 @@ class AthleteHomeFragment : Fragment() {
     private fun handleCardClick(card: HomeCard) {
         when (card.title) {
             "Absence Form" -> findNavController().navigate(R.id.absenceFormFragment)
+            "Injury Report" -> findNavController().navigate(R.id.injuryFormFragment)
+            "Wellness Check" -> findNavController().navigate(R.id.wellnessFormFragment)
+            "Academic Check" -> findNavController().navigate(R.id.academicFormFragment)
+            "My Submissions" -> findNavController().navigate(R.id.athleteSubmissionsFragment)
             else -> Toast.makeText(requireContext(), card.title, Toast.LENGTH_SHORT).show()
         }
     }
 
     private fun mockForms(): List<HomeCard> = listOf(
-        HomeCard("Travel Form", "VSU @ Away"),
-        HomeCard("Absence Form", "2 pending"),
-        HomeCard("Pending", "3 forms awaiting"),
-        HomeCard("Approved", "Last 7 days")
+        HomeCard("Absence Form", "Submit"),
+        HomeCard("Injury Report", "Submit"),
+        HomeCard("Wellness Check", "Submit"),
+        HomeCard("Academic Check", "Bi-weekly"),
+        HomeCard("My Submissions", "View status")
     )
 
     private fun mockAtRiskAlerts(): List<HomeCard> = listOf(

@@ -39,22 +39,68 @@
         android:name="com.dualtrack.app.ui.home.HomeFragment"
         android:label="Home" />
 
+    <!-- ATHLETE HOME -->
     <fragment
         android:id="@+id/athleteHomeFragment"
         android:name="com.dualtrack.app.ui.home.AthleteHomeFragment"
-        android:label="Athlete Home" />
+        android:label="Athlete Home">
 
+        <action
+            android:id="@+id/action_athleteHome_to_absenceForm"
+            app:destination="@id/absenceFormFragment" />
+
+        <action
+            android:id="@+id/action_athleteHome_to_athleteSubmissions"
+            app:destination="@id/athleteSubmissionsFragment" />
+    </fragment>
+
+    <!-- COACH HOME -->
     <fragment
         android:id="@+id/coachHomeFragment"
         android:name="com.dualtrack.app.ui.coach.CoachDashboardFragment"
         android:label="Coach Dashboard"
-        tools:layout="@layout/fragment_coach_dashboard"/>
+        tools:layout="@layout/fragment_coach_dashboard">
 
+        <action
+            android:id="@+id/action_coachHome_to_coachForms"
+            app:destination="@id/coachFormsFragment" />
+    </fragment>
+
+    <!-- FORMS -->
     <fragment
         android:id="@+id/absenceFormFragment"
         android:name="com.dualtrack.app.ui.forms.AbsenceFormFragment"
         android:label="Absence Form"
         tools:layout="@layout/fragment_absence_form" />
 
+    <fragment
+        android:id="@+id/athleteSubmissionsFragment"
+        android:name="com.dualtrack.app.ui.forms.AthleteSubmissionsFragment"
+        android:label="My Submissions"
+        tools:layout="@layout/fragment_athlete_submissions" />
+
+    <fragment
+        android:id="@+id/coachFormsFragment"
+        android:name="com.dualtrack.app.ui.forms.CoachFormsFragment"
+        android:label="Team Forms"
+        tools:layout="@layout/fragment_coach_forms" />
+
+    <fragment
+        android:id="@+id/injuryFormFragment"
+        android:name="com.dualtrack.app.ui.forms.InjuryFormFragment"
+        android:label="Injury Report"
+        tools:layout="@layout/fragment_injury_form" />
+
+    <fragment
+        android:id="@+id/wellnessFormFragment"
+        android:name="com.dualtrack.app.ui.forms.WellnessFormFragment"
+        android:label="Wellness Check"
+        tools:layout="@layout/fragment_wellness_form" />
+
+    <fragment
+        android:id="@+id/academicFormFragment"
+        android:name="com.dualtrack.app.ui.forms.AcademicFormFragment"
+        android:label="Academic Check"
+        tools:layout="@layout/fragment_academic_form" />
 
 </navigation>
