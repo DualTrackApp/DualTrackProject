@@ -27,26 +27,31 @@ class AthleteSubmissionsFragment : Fragment() {
         _b = FragmentAthleteSubmissionsBinding.inflate(inflater, container, false)
 
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        loadSubmissions()
+
+        loadMyForms()
+
+        b.btnBack.setOnClickListener {
+            requireActivity().onBackPressedDispatcher.onBackPressed()
+        }
 
         return b.root
     }
 
-    private fun loadSubmissions() {
-        val userId = auth.currentUser?.uid ?: return
+    private fun loadMyForms() {
+        val user = auth.currentUser ?: return
 
         db.collection("forms")
-            .whereEqualTo("userId", userId)
+            .whereEqualTo("userId", user.uid)
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, _ ->
                 if (snapshot == null) return@addSnapshotListener
 
-                val items = snapshot.documents.map {
+                val items = snapshot.documents.map { doc ->
                     FormItem(
-                        id = it.id,
-                        formType = it.getString("formType") ?: "",
-                        status = it.getString("status") ?: "pending",
-                        createdAt = it.getTimestamp("createdAt")?.toDate().toString()
+                        id = doc.id,
+                        formType = doc.getString("formType") ?: "",
+                        status = doc.getString("status") ?: "pending",
+                        createdAt = doc.getTimestamp("createdAt")
                     )
                 }
 

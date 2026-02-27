@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="24dp"
@@ -10,12 +11,23 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <ImageButton
+            android:id="@+id/btnBack"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="@android:color/transparent"
+            android:src="@android:drawable/ic_media_previous"
+            android:contentDescription="Back"
+            android:padding="8dp"
+            app:tint="@color/dt_white" />
+
         <EditText
             android:id="@+id/etReason"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Reason for absence"
-            android:padding="12dp" />
+            android:padding="12dp"
+            android:layout_marginTop="16dp" />
 
         <EditText
             android:id="@+id/etDate"
@@ -38,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Submit Absence Request"
-            android:layout_marginTop="32dp"/>
-    </LinearLayout>
+            android:layout_marginTop="32dp" />
 
+    </LinearLayout>
 </ScrollView>

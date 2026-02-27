@@ -26,6 +26,7 @@ class AthleteHomeFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
+
     ): View {
         _b = FragmentHomeAthleteBinding.inflate(inflater, container, false)
 
@@ -36,6 +37,16 @@ class AthleteHomeFragment : Fragment() {
         loadTeamStatus()
         setupQuickAdd()
         setupRecyclerViews()
+
+        b.tvWelcomeTitle.setOnLongClickListener {
+            findNavController().navigate(R.id.accountFragment)
+            true
+        }
+
+        b.includeLogo.root.setOnClickListener {
+            findNavController().navigate(R.id.accountFragment)
+            true
+        }
 
         return b.root
     }
@@ -71,7 +82,8 @@ class AthleteHomeFragment : Fragment() {
                         .get()
                         .addOnSuccessListener { teamSnap ->
                             val resolvedName = teamSnap.getString("teamName")
-                            b.tvTeamStatus.text = if (!resolvedName.isNullOrBlank()) "Team: $resolvedName" else "Team Assigned"
+                            b.tvTeamStatus.text =
+                                if (!resolvedName.isNullOrBlank()) "Team: $resolvedName" else "Team Assigned"
                         }
                         .addOnFailureListener {
                             b.tvTeamStatus.text = "Team Assigned"
@@ -150,23 +162,18 @@ class AthleteHomeFragment : Fragment() {
     )
 
     private fun mockAtRiskAlerts(): List<HomeCard> = listOf(
-        HomeCard("Football Game", "Today · 23 min"),
-        HomeCard("Midterm Exam", "Tomorrow · 19 hours"),
-        HomeCard("Study Hall", "GPA watch"),
+        HomeCard("No alerts yet", "You're good")
     )
 
     private fun mockCalendar(): List<HomeCard> = listOf(
-        HomeCard("Monday", "Football Game"),
-        HomeCard("Tuesday", "Midterm Exam"),
-        HomeCard("Wednesday", "Practice"),
-        HomeCard("Thursday", "Team Meeting")
+        HomeCard("Mon", "Add events"),
+        HomeCard("Tue", "Add events"),
+        HomeCard("Wed", "Add events"),
+        HomeCard("Thu", "Add events")
     )
 
     private fun mockTasks(): List<HomeCard> = listOf(
-        HomeCard("Homework", "CSCI 489 · Due Fri"),
-        HomeCard("Workout", "Strength & Conditioning"),
-        HomeCard("Practice", "VSU Soccer"),
-        HomeCard("Study", "Film Review")
+        HomeCard("No tasks yet", "Tap Quick Add")
     )
 
     private fun mockWellness(): List<HomeCard> = listOf(

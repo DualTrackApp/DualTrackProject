@@ -14,11 +14,7 @@ class CoachFormsAdapter(
         RecyclerView.ViewHolder(b.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FormViewHolder {
-        val binding = ItemCoachFormBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+        val binding = ItemCoachFormBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return FormViewHolder(binding)
     }
 
@@ -30,32 +26,25 @@ class CoachFormsAdapter(
         holder.b.tvStatus.text = item.status
 
         holder.b.btnApprove.setOnClickListener {
-            approveForm(item.id)
+            update(item.id, "approved", "Approved by coach")
         }
 
         holder.b.btnNeedsAttention.setOnClickListener {
-            updateStatus(item.id, "needs_attention")
+            update(item.id, "needs_attention", "Needs attention")
         }
     }
 
     override fun getItemCount(): Int = items.size
 
-    private fun approveForm(formId: String) {
+    private fun update(formId: String, status: String, note: String) {
         FirebaseFirestore.getInstance()
             .collection("forms")
             .document(formId)
             .update(
                 mapOf(
-                    "status" to "approved",
-                    "coachNote" to "Approved by coach"
+                    "status" to status,
+                    "coachNote" to note
                 )
             )
-    }
-
-    private fun updateStatus(formId: String, status: String) {
-        FirebaseFirestore.getInstance()
-            .collection("forms")
-            .document(formId)
-            .update("status", status)
     }
 }
