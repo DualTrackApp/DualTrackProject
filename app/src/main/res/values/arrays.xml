@@ -7,4 +7,12 @@
     <string-array name="teams_placeholder">
         <item>Select team</item>
     </string-array>
+    <string-array name="at_risk_types">
+        <item>Select type</item>
+        <item>Academic</item>
+        <item>Attendance</item>
+        <item>Injury</item>
+        <item>Mental health</item>
+        <item>Other</item>
+    </string-array>
 </resources>

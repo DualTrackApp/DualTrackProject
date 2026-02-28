@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Back" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="At-Risk Alert"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_marginTop="16dp" />
+
+    <Spinner
+        android:id="@+id/spAlertType"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:entries="@array/at_risk_types" />
+
+    <EditText
+        android:id="@+id/etMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="What’s going on?"
+        android:minLines="3"
+        android:gravity="top"
+        android:layout_marginTop="12dp" />
+
+    <Button
+        android:id="@+id/btnSubmitAtRisk"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit Alert"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>

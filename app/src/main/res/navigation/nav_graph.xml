@@ -58,6 +58,10 @@
         <action
             android:id="@+id/action_athleteHome_to_athleteSubmissions"
             app:destination="@id/athleteSubmissionsFragment" />
+
+        <action
+            android:id="@+id/action_athleteHome_to_atRiskForm"
+            app:destination="@id/atRiskFormFragment" />
     </fragment>
 
     <!-- COACH HOME -->
@@ -109,4 +113,13 @@
         android:label="Academic Check"
         tools:layout="@layout/fragment_academic_form" />
 
+    <fragment
+        android:id="@+id/atRiskFormFragment"
+        android:name="com.dualtrack.app.ui.forms.AtRiskFormFragment"
+        android:label="At-Risk Alert" />
+
+    <fragment
+        android:id="@+id/progressWellnessFormFragment"
+        android:name="com.dualtrack.app.ui.forms.ProgressWellnessFormFragment"
+        android:label="Progress and Wellness" />
 </navigation>

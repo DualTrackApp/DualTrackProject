@@ -126,19 +126,29 @@ class AthleteHomeFragment : Fragment() {
 
     private fun setupRecyclerViews() {
         setupHorizontalList(b.rvForms, mockForms())
-        setupHorizontalList(b.rvAtRisk, mockAtRiskAlerts())
+        setupHorizontalList(b.rvAtRisk, mockAtRiskAlerts()) {
+            findNavController().navigate(R.id.action_athleteHome_to_atRiskForm)
+        }
         setupHorizontalList(b.rvCalendar, mockCalendar())
         setupHorizontalList(b.rvTasks, mockTasks())
         setupHorizontalList(b.rvWellness, mockWellness())
     }
 
-    private fun setupHorizontalList(recyclerView: RecyclerView, items: List<HomeCard>) {
+    private fun setupHorizontalList(
+        recyclerView: RecyclerView,
+        items: List<HomeCard>,
+        onCardClickOverride: (() -> Unit)? = null
+    ) {
         recyclerView.isNestedScrollingEnabled = false
         recyclerView.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
         recyclerView.adapter = HomeCardAdapter(items) { card ->
-            handleCardClick(card)
+            if (onCardClickOverride != null) {
+                onCardClickOverride.invoke()
+            } else {
+                handleCardClick(card)
+            }
         }
     }
 
@@ -149,6 +159,16 @@ class AthleteHomeFragment : Fragment() {
             "Wellness Check" -> findNavController().navigate(R.id.wellnessFormFragment)
             "Academic Check" -> findNavController().navigate(R.id.academicFormFragment)
             "My Submissions" -> findNavController().navigate(R.id.athleteSubmissionsFragment)
+
+            "Completion Chart", "Wellness Diaries", "Eligibility Flags" -> {
+                val bundle = Bundle().apply {
+                    putString("cardTitle", card.title)
+                }
+                findNavController().navigate(R.id.progressWellnessFormFragment, bundle)
+            }
+
+            "Injury Overview" -> findNavController().navigate(R.id.injuryFormFragment)
+
             else -> Toast.makeText(requireContext(), card.title, Toast.LENGTH_SHORT).show()
         }
     }
@@ -162,7 +182,7 @@ class AthleteHomeFragment : Fragment() {
     )
 
     private fun mockAtRiskAlerts(): List<HomeCard> = listOf(
-        HomeCard("No alerts yet", "You're good")
+        HomeCard("Log At-Risk Alert", "Tap to submit")
     )
 
     private fun mockCalendar(): List<HomeCard> = listOf(
