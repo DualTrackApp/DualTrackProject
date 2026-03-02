@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.dualtrack.app.databinding.FragmentCoachFormsBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 
 class CoachFormsFragment : Fragment() {
@@ -20,11 +21,18 @@ class CoachFormsFragment : Fragment() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    private var formsListener: ListenerRegistration? = null
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         _b = FragmentCoachFormsBinding.inflate(inflater, container, false)
 
         b.btnBack.setOnClickListener { findNavController().navigateUp() }
         b.recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        b.recyclerView.adapter = CoachFormsAdapter(emptyList())
 
         loadTeamForms()
 
@@ -37,13 +45,18 @@ class CoachFormsFragment : Fragment() {
         db.collection("users").document(uid)
             .get()
             .addOnSuccessListener { snap ->
-                val teamId = snap.getString("teamId") ?: "TEMP_TEAM_ID"
+                val teamId = snap.getString("teamId")?.trim().orEmpty()
+                if (teamId.isBlank()) {
+                    b.recyclerView.adapter = CoachFormsAdapter(emptyList())
+                    return@addOnSuccessListener
+                }
 
-                db.collection("forms")
+                formsListener?.remove()
+                formsListener = db.collection("forms")
                     .whereEqualTo("teamId", teamId)
                     .orderBy("createdAt", Query.Direction.DESCENDING)
                     .addSnapshotListener { snapshot, _ ->
-                        if (snapshot == null) return@addSnapshotListener
+                        if (snapshot == null || _b == null) return@addSnapshotListener
 
                         val items = snapshot.documents.map {
                             CoachFormItem(
@@ -57,10 +70,17 @@ class CoachFormsFragment : Fragment() {
                         b.recyclerView.adapter = CoachFormsAdapter(items)
                     }
             }
+            .addOnFailureListener {
+                if (_b == null) return@addOnFailureListener
+                b.recyclerView.adapter = CoachFormsAdapter(emptyList())
+            }
     }
 
     override fun onDestroyView() {
-        super.onDestroyView()
+        formsListener?.remove()
+        formsListener = null
         _b = null
+        super.onDestroyView()
     }
 }
+

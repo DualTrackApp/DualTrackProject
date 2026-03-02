@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/dt_navy"
+    android:padding="@dimen/dt_screen_pad">
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="120dp"
+        android:layout_height="48dp"
+        android:text="Back"
+        android:background="@drawable/dt_button_pill_white_orange" />
+
+    <EditText
+        android:id="@+id/etTitle"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="@dimen/dt_gap_lg"
+        android:hint="Event title"
+        android:background="@drawable/dt_input_outline"
+        android:padding="14dp"
+        android:textColor="@color/dt_white"
+        android:textColorHint="@color/dt_white_60" />
+
+    <EditText
+        android:id="@+id/etDetails"
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:layout_marginTop="@dimen/dt_gap_md"
+        android:hint="Details (optional)"
+        android:background="@drawable/dt_input_outline"
+        android:padding="14dp"
+        android:textColor="@color/dt_white"
+        android:textColorHint="@color/dt_white_60" />
+
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Save"
+        android:layout_marginTop="@dimen/dt_gap_md"
+        android:background="@drawable/dt_button_pill_white_orange" />
+
+</LinearLayout>

@@ -8,12 +8,14 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentCoachDashboardBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 
 class CoachDashboardFragment : Fragment() {
@@ -26,6 +28,12 @@ class CoachDashboardFragment : Fragment() {
 
     private var cachedTeamId: String? = null
     private var cachedTeamName: String? = null
+
+    private var rosterListener: ListenerRegistration? = null
+
+    private lateinit var athletesAdapter: CoachEmailAdapter
+    private lateinit var flagsAdapter: CoachEmailAdapter
+    private lateinit var wellnessAdapter: CoachEmailAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -41,20 +49,44 @@ class CoachDashboardFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        refreshCoachTeamCache()
+        setupLists()
 
-        b.btnManageTeam.setOnClickListener {
-            showManageTeamDialog()
+        b.logo.root.setOnClickListener {
+            auth.signOut()
+            findNavController().navigate(R.id.action_global_loginFragment)
         }
 
-        // 🔽 NEW: navigate to Team Forms screen
+        b.btnManageTeam.setOnClickListener { showManageTeamDialog() }
+
         b.btnTeamForms.setOnClickListener {
             findNavController().navigate(R.id.action_coachHome_to_coachForms)
         }
+
+        refreshCoachTeamCache {
+            startRosterListener()
+        }
+    }
+
+    private fun setupLists() {
+        athletesAdapter = CoachEmailAdapter()
+        flagsAdapter = CoachEmailAdapter()
+        wellnessAdapter = CoachEmailAdapter()
+
+        b.rvAthletes.layoutManager = LinearLayoutManager(requireContext())
+        b.rvFlags.layoutManager = LinearLayoutManager(requireContext())
+        b.rvWellness.layoutManager = LinearLayoutManager(requireContext())
+
+        b.rvAthletes.adapter = athletesAdapter
+        b.rvFlags.adapter = flagsAdapter
+        b.rvWellness.adapter = wellnessAdapter
     }
 
     private fun refreshCoachTeamCache(onDone: (() -> Unit)? = null) {
-        val uid = auth.currentUser?.uid ?: return
+        val uid = auth.currentUser?.uid ?: run {
+            onDone?.invoke()
+            return
+        }
+
         db.collection("users").document(uid)
             .get()
             .addOnSuccessListener { snap ->
@@ -65,6 +97,58 @@ class CoachDashboardFragment : Fragment() {
             .addOnFailureListener {
                 onDone?.invoke()
             }
+    }
+
+    private fun startRosterListener() {
+        rosterListener?.remove()
+        val teamId = cachedTeamId
+        if (teamId.isNullOrBlank()) {
+            val empty = listOf("No athletes assigned")
+            athletesAdapter.submit(empty)
+            flagsAdapter.submit(empty)
+            wellnessAdapter.submit(empty)
+            return
+        }
+
+        rosterListener = db.collection("teams").document(teamId)
+            .collection("roster")
+            .addSnapshotListener { snap, _ ->
+                val ids = snap?.documents?.map { it.id }?.distinct().orEmpty()
+                if (ids.isEmpty()) {
+                    val empty = listOf("No athletes assigned")
+                    athletesAdapter.submit(empty)
+                    flagsAdapter.submit(empty)
+                    wellnessAdapter.submit(empty)
+                    return@addSnapshotListener
+                }
+
+                fetchEmailsForUids(ids) { emails ->
+                    val list = if (emails.isEmpty()) listOf("No athletes assigned") else emails
+                    athletesAdapter.submit(list)
+                    flagsAdapter.submit(list)
+                    wellnessAdapter.submit(list)
+                }
+            }
+    }
+
+    private fun fetchEmailsForUids(uids: List<String>, onDone: (List<String>) -> Unit) {
+        val results = mutableListOf<String>()
+        var remaining = uids.size
+
+        uids.forEach { uid ->
+            db.collection("users").document(uid)
+                .get()
+                .addOnSuccessListener { doc ->
+                    val email = doc.getString("email") ?: doc.getString("userEmail")
+                    if (!email.isNullOrBlank()) results.add(email)
+                    remaining -= 1
+                    if (remaining == 0) onDone(results.sorted())
+                }
+                .addOnFailureListener {
+                    remaining -= 1
+                    if (remaining == 0) onDone(results.sorted())
+                }
+        }
     }
 
     private fun showManageTeamDialog() {
@@ -142,10 +226,8 @@ class CoachDashboardFragment : Fragment() {
                     .addOnSuccessListener {
                         cachedTeamId = teamRef.id
                         cachedTeamName = teamName
+                        startRosterListener()
                         Toast.makeText(requireContext(), "Team created: $teamName", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(requireContext(), "Team created, but coach update failed: ${e.message}", Toast.LENGTH_LONG).show()
                     }
             }
             .addOnFailureListener { e ->
@@ -163,9 +245,7 @@ class CoachDashboardFragment : Fragment() {
             return
         }
 
-        val input = EditText(requireContext()).apply {
-            hint = "Athlete email or UID"
-        }
+        val input = EditText(requireContext()).apply { hint = "Athlete UID" }
 
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Add Athlete")
@@ -173,55 +253,11 @@ class CoachDashboardFragment : Fragment() {
             .setView(input)
             .setNegativeButton("Cancel", null)
             .setPositiveButton("Assign") { _, _ ->
-                val key = input.text.toString().trim()
-                if (key.isBlank()) return@setPositiveButton
-
-                if (key.contains("@")) {
-                    assignAthleteByEmail(
-                        email = key,
-                        teamId = teamId,
-                        teamName = teamName,
-                        coachId = coachId
-                    )
-                } else {
-                    assignAthleteByUid(
-                        athleteUid = key,
-                        teamId = teamId,
-                        teamName = teamName,
-                        coachId = coachId
-                    )
-                }
+                val athleteUid = input.text.toString().trim()
+                if (athleteUid.isBlank()) return@setPositiveButton
+                assignAthleteByUid(athleteUid, teamId, teamName, coachId)
             }
             .show()
-    }
-
-    private fun assignAthleteByEmail(
-        email: String,
-        teamId: String,
-        teamName: String?,
-        coachId: String
-    ) {
-        db.collection("users")
-            .whereEqualTo("email", email)
-            .limit(1)
-            .get()
-            .addOnSuccessListener { qs ->
-                val doc = qs.documents.firstOrNull()
-                if (doc == null) {
-                    Toast.makeText(requireContext(), "No athlete found for $email (they must register first)", Toast.LENGTH_LONG).show()
-                    return@addOnSuccessListener
-                }
-
-                assignAthleteByUid(
-                    athleteUid = doc.id,
-                    teamId = teamId,
-                    teamName = teamName,
-                    coachId = coachId
-                )
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Lookup failed: ${e.message}", Toast.LENGTH_LONG).show()
-            }
     }
 
     private fun assignAthleteByUid(
@@ -262,20 +298,13 @@ class CoachDashboardFragment : Fragment() {
                             .addOnSuccessListener {
                                 Toast.makeText(requireContext(), "Athlete assigned!", Toast.LENGTH_SHORT).show()
                             }
-                            .addOnFailureListener { e ->
-                                Toast.makeText(requireContext(), "Assigned user, but roster write failed: ${e.message}", Toast.LENGTH_LONG).show()
-                            }
                     }
-                    .addOnFailureListener { e ->
-                        Toast.makeText(requireContext(), "Assign failed: ${e.message}", Toast.LENGTH_LONG).show()
-                    }
-            }
-            .addOnFailureListener { e ->
-                Toast.makeText(requireContext(), "Read failed: ${e.message}", Toast.LENGTH_LONG).show()
             }
     }
 
     override fun onDestroyView() {
+        rosterListener?.remove()
+        rosterListener = null
         super.onDestroyView()
         _b = null
     }

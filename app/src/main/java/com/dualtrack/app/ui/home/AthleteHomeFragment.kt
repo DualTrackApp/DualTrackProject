@@ -13,6 +13,7 @@ import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentHomeAthleteBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import java.util.Calendar
 
 class AthleteHomeFragment : Fragment() {
 
@@ -26,7 +27,6 @@ class AthleteHomeFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-
     ): View {
         _b = FragmentHomeAthleteBinding.inflate(inflater, container, false)
 
@@ -45,7 +45,6 @@ class AthleteHomeFragment : Fragment() {
 
         b.includeLogo.root.setOnClickListener {
             findNavController().navigate(R.id.accountFragment)
-            true
         }
 
         return b.root
@@ -126,10 +125,20 @@ class AthleteHomeFragment : Fragment() {
 
     private fun setupRecyclerViews() {
         setupHorizontalList(b.rvForms, mockForms())
+
         setupHorizontalList(b.rvAtRisk, mockAtRiskAlerts()) {
             findNavController().navigate(R.id.action_athleteHome_to_atRiskForm)
         }
-        setupHorizontalList(b.rvCalendar, mockCalendar())
+
+        b.rvCalendar.isNestedScrollingEnabled = false
+        b.rvCalendar.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        b.rvCalendar.adapter = HomeCardAdapter(mockCalendar()) { card ->
+            val dayMillis = dayMillisForLabel(card.title)
+            val args = Bundle().apply { putLong("dayMillis", dayMillis) }
+            findNavController().navigate(R.id.action_athleteHome_to_dayEvents, args)
+        }
+
         setupHorizontalList(b.rvTasks, mockTasks())
         setupHorizontalList(b.rvWellness, mockWellness())
     }
@@ -161,9 +170,7 @@ class AthleteHomeFragment : Fragment() {
             "My Submissions" -> findNavController().navigate(R.id.athleteSubmissionsFragment)
 
             "Completion Chart", "Wellness Diaries", "Eligibility Flags" -> {
-                val bundle = Bundle().apply {
-                    putString("cardTitle", card.title)
-                }
+                val bundle = Bundle().apply { putString("cardTitle", card.title) }
                 findNavController().navigate(R.id.progressWellnessFormFragment, bundle)
             }
 
@@ -171,6 +178,29 @@ class AthleteHomeFragment : Fragment() {
 
             else -> Toast.makeText(requireContext(), card.title, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun dayMillisForLabel(label: String): Long {
+        val cal = Calendar.getInstance()
+        cal.firstDayOfWeek = Calendar.MONDAY
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+        cal.set(Calendar.MINUTE, 0)
+        cal.set(Calendar.SECOND, 0)
+        cal.set(Calendar.MILLISECOND, 0)
+
+        val dow = when (label) {
+            "Mon" -> Calendar.MONDAY
+            "Tue" -> Calendar.TUESDAY
+            "Wed" -> Calendar.WEDNESDAY
+            "Thu" -> Calendar.THURSDAY
+            "Fri" -> Calendar.FRIDAY
+            "Sat" -> Calendar.SATURDAY
+            "Sun" -> Calendar.SUNDAY
+            else -> Calendar.MONDAY
+        }
+
+        cal.set(Calendar.DAY_OF_WEEK, dow)
+        return cal.timeInMillis
     }
 
     private fun mockForms(): List<HomeCard> = listOf(

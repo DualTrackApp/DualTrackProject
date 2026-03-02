@@ -5,6 +5,38 @@
     android:id="@+id/app_nav"
     app:startDestination="@id/loginFragment">
 
+    <action
+        android:id="@+id/action_global_loginFragment"
+        app:destination="@id/loginFragment"
+        app:popUpTo="@id/app_nav"
+        app:popUpToInclusive="true" />
+
+    <fragment
+        android:id="@+id/dayEventsFragment"
+        android:name="com.dualtrack.app.ui.calendar.DayEventsFragment"
+        android:label="Day Events">
+
+        <argument
+            android:name="dayMillis"
+            app:argType="long"
+            android:defaultValue="0L" />
+
+        <action
+            android:id="@+id/action_dayEvents_to_addEvent"
+            app:destination="@id/addEventFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/addEventFragment"
+        android:name="com.dualtrack.app.ui.calendar.AddEventFragment"
+        android:label="Add Event">
+
+        <argument
+            android:name="dayMillis"
+            app:argType="long"
+            android:defaultValue="0L" />
+    </fragment>
+
     <fragment
         android:id="@+id/accountFragment"
         android:name="com.dualtrack.app.ui.account.AccountFragment"
@@ -15,9 +47,11 @@
         android:id="@+id/loginFragment"
         android:name="com.dualtrack.app.ui.auth.LoginFragment"
         android:label="Login">
+
         <action
             android:id="@+id/action_login_to_athleteHome"
             app:destination="@id/athleteHomeFragment" />
+
         <action
             android:id="@+id/action_login_to_coachHome"
             app:destination="@id/coachHomeFragment" />
@@ -27,9 +61,11 @@
         android:id="@+id/registerFragment"
         android:name="com.dualtrack.app.ui.auth.RegisterFragment"
         android:label="Register">
+
         <action
             android:id="@+id/action_register_to_athleteHome"
             app:destination="@id/athleteHomeFragment" />
+
         <action
             android:id="@+id/action_register_to_coachHome"
             app:destination="@id/coachHomeFragment" />
@@ -45,7 +81,6 @@
         android:name="com.dualtrack.app.ui.home.HomeFragment"
         android:label="Home" />
 
-    <!-- ATHLETE HOME -->
     <fragment
         android:id="@+id/athleteHomeFragment"
         android:name="com.dualtrack.app.ui.home.AthleteHomeFragment"
@@ -62,9 +97,12 @@
         <action
             android:id="@+id/action_athleteHome_to_atRiskForm"
             app:destination="@id/atRiskFormFragment" />
+
+        <action
+            android:id="@+id/action_athleteHome_to_dayEvents"
+            app:destination="@id/dayEventsFragment" />
     </fragment>
 
-    <!-- COACH HOME -->
     <fragment
         android:id="@+id/coachHomeFragment"
         android:name="com.dualtrack.app.ui.coach.CoachDashboardFragment"
@@ -76,7 +114,6 @@
             app:destination="@id/coachFormsFragment" />
     </fragment>
 
-    <!-- FORMS -->
     <fragment
         android:id="@+id/absenceFormFragment"
         android:name="com.dualtrack.app.ui.forms.AbsenceFormFragment"

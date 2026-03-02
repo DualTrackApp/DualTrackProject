@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/dt_navy"
+    android:padding="@dimen/dt_screen_pad">
+
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="120dp"
+        android:layout_height="48dp"
+        android:text="Back"
+        android:background="@drawable/dt_button_pill_white_orange" />
+
+    <TextView
+        android:id="@+id/tvDayTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mon, Feb 23"
+        android:textColor="@color/dt_white"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:layout_marginTop="@dimen/dt_gap_md" />
+
+    <Button
+        android:id="@+id/btnAddEvent"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Add Event"
+        android:layout_marginTop="@dimen/dt_gap_md"
+        android:background="@drawable/dt_button_pill_white_orange" />
+
+    <TextView
+        android:id="@+id/tvEmpty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No events yet"
+        android:textColor="@color/dt_white_60"
+        android:layout_marginTop="@dimen/dt_gap_md"
+        android:visibility="gone" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvDayEvents"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="@dimen/dt_gap_md"
+        android:background="@android:color/transparent"
+        android:overScrollMode="never" />
+
+</LinearLayout>

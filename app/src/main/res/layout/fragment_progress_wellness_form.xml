@@ -39,7 +39,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Optional number"
-        android:inputType="numberDecimal"
+        android:inputType="number"
+        android:imeOptions="actionDone"
+        android:importantForAutofill="no"
         android:layout_marginTop="16dp" />
 
     <EditText
