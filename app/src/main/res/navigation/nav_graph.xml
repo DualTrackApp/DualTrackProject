@@ -159,4 +159,9 @@
         android:id="@+id/progressWellnessFormFragment"
         android:name="com.dualtrack.app.ui.forms.ProgressWellnessFormFragment"
         android:label="Progress and Wellness" />
+
+    <fragment
+        android:id="@+id/teamUpdatesFragment"
+        android:name="com.dualtrack.app.ui.updates.TeamUpdatesFragment"
+        android:label="Team Updates" />
 </navigation>

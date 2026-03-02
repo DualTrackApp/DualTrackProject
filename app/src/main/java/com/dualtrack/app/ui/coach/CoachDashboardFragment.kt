@@ -62,6 +62,9 @@ class CoachDashboardFragment : Fragment() {
             findNavController().navigate(R.id.action_coachHome_to_coachForms)
         }
 
+        b.btnAddAnnouncement.setOnClickListener { showCreateAnnouncementDialog() }
+        b.btnAddEvent.setOnClickListener { showCreateEventDialog() }
+
         refreshCoachTeamCache {
             startRosterListener()
         }
@@ -258,6 +261,120 @@ class CoachDashboardFragment : Fragment() {
                 assignAthleteByUid(athleteUid, teamId, teamName, coachId)
             }
             .show()
+    }
+
+    private fun showCreateAnnouncementDialog() {
+        refreshCoachTeamCache {
+            val teamId = cachedTeamId
+            val coachId = auth.currentUser?.uid
+            if (coachId.isNullOrBlank() || teamId.isNullOrBlank()) {
+                Toast.makeText(requireContext(), "Create a team first.", Toast.LENGTH_SHORT).show()
+                return@refreshCoachTeamCache
+            }
+
+            val titleInput = EditText(requireContext()).apply { hint = "Announcement title" }
+            val msgInput = EditText(requireContext()).apply { hint = "Message" }
+
+            val container = android.widget.LinearLayout(requireContext()).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                val pad = (16 * resources.displayMetrics.density).toInt()
+                setPadding(pad, pad, pad, pad)
+                addView(titleInput)
+                addView(msgInput)
+            }
+
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Create Announcement")
+                .setView(container)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Post") { _, _ ->
+                    val title = titleInput.text.toString().trim()
+                    val message = msgInput.text.toString().trim()
+
+                    if (title.isBlank() || message.isBlank()) {
+                        Toast.makeText(requireContext(), "Title + message required.", Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+
+                    val doc = hashMapOf(
+                        "teamId" to teamId,
+                        "coachId" to coachId,
+                        "type" to "announcement",
+                        "title" to title,
+                        "message" to message,
+                        "createdAt" to Timestamp.now()
+                    )
+
+                    db.collection("announcements")
+                        .add(doc)
+                        .addOnSuccessListener {
+                            Toast.makeText(requireContext(), "Announcement posted ✓", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                }
+                .show()
+        }
+    }
+
+    private fun showCreateEventDialog() {
+        refreshCoachTeamCache {
+            val teamId = cachedTeamId
+            val coachId = auth.currentUser?.uid
+            if (coachId.isNullOrBlank() || teamId.isNullOrBlank()) {
+                Toast.makeText(requireContext(), "Create a team first.", Toast.LENGTH_SHORT).show()
+                return@refreshCoachTeamCache
+            }
+
+            val titleInput = EditText(requireContext()).apply { hint = "Event title" }
+            val detailsInput = EditText(requireContext()).apply { hint = "Details (optional)" }
+            val dateInput = EditText(requireContext()).apply { hint = "Date (optional, ex: Mar 3 @ 4pm)" }
+
+            val container = android.widget.LinearLayout(requireContext()).apply {
+                orientation = android.widget.LinearLayout.VERTICAL
+                val pad = (16 * resources.displayMetrics.density).toInt()
+                setPadding(pad, pad, pad, pad)
+                addView(titleInput)
+                addView(detailsInput)
+                addView(dateInput)
+            }
+
+            MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Add Team Event")
+                .setView(container)
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("Create") { _, _ ->
+                    val title = titleInput.text.toString().trim()
+                    val details = detailsInput.text.toString().trim()
+                    val eventDate = dateInput.text.toString().trim()
+
+                    if (title.isBlank()) {
+                        Toast.makeText(requireContext(), "Event title required.", Toast.LENGTH_SHORT).show()
+                        return@setPositiveButton
+                    }
+
+                    val doc = hashMapOf(
+                        "teamId" to teamId,
+                        "coachId" to coachId,
+                        "type" to "event",
+                        "title" to title,
+                        "details" to details,
+                        "eventDate" to eventDate,
+                        "createdAt" to Timestamp.now()
+                    )
+
+                    db.collection("teamEvents")
+                        .add(doc)
+                        .addOnSuccessListener {
+                            Toast.makeText(requireContext(), "Event created ✓", Toast.LENGTH_SHORT).show()
+                        }
+                        .addOnFailureListener { e ->
+                            Toast.makeText(requireContext(), "Error: ${e.message}", Toast.LENGTH_LONG).show()
+                        }
+                }
+                .show()
+        }
     }
 
     private fun assignAthleteByUid(

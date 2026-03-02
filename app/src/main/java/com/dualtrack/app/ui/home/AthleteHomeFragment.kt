@@ -23,6 +23,11 @@ class AthleteHomeFragment : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var db: FirebaseFirestore
 
+    private var announcementsReg: com.google.firebase.firestore.ListenerRegistration? = null
+    private var eventsReg: com.google.firebase.firestore.ListenerRegistration? = null
+    private var announcementsCount: Int = 0
+    private var eventsCount: Int = 0
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -35,6 +40,7 @@ class AthleteHomeFragment : Fragment() {
 
         setupWelcome()
         loadTeamStatus()
+        listenForAnnouncementsRow()
         setupQuickAdd()
         setupRecyclerViews()
 
@@ -117,6 +123,7 @@ class AthleteHomeFragment : Fragment() {
             }
     }
 
+
     private fun setupQuickAdd() {
         b.btnQuickAdd.setOnClickListener {
             Toast.makeText(requireContext(), "Quick Add tapped", Toast.LENGTH_SHORT).show()
@@ -139,7 +146,6 @@ class AthleteHomeFragment : Fragment() {
             findNavController().navigate(R.id.action_athleteHome_to_dayEvents, args)
         }
 
-        setupHorizontalList(b.rvTasks, mockTasks())
         setupHorizontalList(b.rvWellness, mockWellness())
     }
 
@@ -203,6 +209,59 @@ class AthleteHomeFragment : Fragment() {
         return cal.timeInMillis
     }
 
+    private fun listenForAnnouncementsRow() {
+        val uid = auth.currentUser?.uid ?: return
+
+        db.collection("users").document(uid).get()
+            .addOnSuccessListener { snap ->
+                val teamId = snap.getString("teamId")
+                if (teamId.isNullOrBlank()) {
+                    renderAnnouncementsRow(0, 0)
+                    return@addOnSuccessListener
+                }
+
+                announcementsReg?.remove()
+                eventsReg?.remove()
+
+                announcementsReg = db.collection("announcements")
+                    .whereEqualTo("teamId", teamId)
+                    .addSnapshotListener { qs, _ ->
+                        announcementsCount = qs?.size() ?: 0
+                        renderAnnouncementsRow(announcementsCount, eventsCount)
+                    }
+
+                eventsReg = db.collection("teamEvents")
+                    .whereEqualTo("teamId", teamId)
+                    .addSnapshotListener { qs, _ ->
+                        eventsCount = qs?.size() ?: 0
+                        renderAnnouncementsRow(announcementsCount, eventsCount)
+                    }
+            }
+            .addOnFailureListener {
+                renderAnnouncementsRow(0, 0)
+            }
+    }
+
+    private fun renderAnnouncementsRow(aCount: Int, eCount: Int) {
+        val announcementsCard = HomeCard(
+            title = "Announcements",
+            subtitle = if (aCount == 1) "1 announcement" else "$aCount announcements"
+        )
+        val eventsCard = HomeCard(
+            title = "Events",
+            subtitle = if (eCount == 1) "1 new event" else "$eCount new events"
+        )
+
+        b.rvTasks.isNestedScrollingEnabled = false
+        b.rvTasks.layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        b.rvTasks.adapter = HomeCardAdapter(listOf(announcementsCard, eventsCard)) {
+            // any tap goes to the list screen
+            findNavController().navigate(R.id.teamUpdatesFragment)
+        }
+    }
+
     private fun mockForms(): List<HomeCard> = listOf(
         HomeCard("Absence Form", "Submit"),
         HomeCard("Injury Report", "Submit"),
@@ -236,5 +295,9 @@ class AthleteHomeFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _b = null
+        announcementsReg?.remove()
+        eventsReg?.remove()
+        announcementsReg = null
+        eventsReg = null
     }
 }

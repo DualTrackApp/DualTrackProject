@@ -133,7 +133,7 @@
             android:id="@+id/tvTasksHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tasks"
+            android:text="Announcements"
             android:textColor="@color/dt_white"
             android:textSize="18sp"
             android:textStyle="bold"
