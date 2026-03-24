@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+
+    android:layout_height="match_parent"
+
+    android:background="@color/dt_navy"
+
+    android:fillViewport="true">
+
+
+
+    <LinearLayout
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical"
+
+        android:padding="20dp">
+
+
+
+        <ImageButton
+
+            android:id="@+id/btnBack"
+
+            android:layout_width="40dp"
+
+            android:layout_height="40dp"
+
+            android:background="@android:color/transparent"
+
+            android:contentDescription="Back"
+
+            android:padding="8dp"
+
+            android:src="@android:drawable/ic_media_previous"
+
+            android:tint="@color/dt_white" />
+
+
+
+        <TextView
+
+            android:id="@+id/tvScreenTitle"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:text="Coach Form Review"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="24sp"
+
+            android:textStyle="bold" />
+
+
+
+        <TextView
+
+            android:id="@+id/tvAthleteEmail"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="14dp"
+
+            android:text="athlete@email.com"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="16sp"
+
+            android:textStyle="bold" />
+
+
+
+        <TextView
+
+            android:id="@+id/tvFormType"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="6dp"
+
+            android:text="Academic Check"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="16sp" />
+
+
+
+        <TextView
+
+            android:id="@+id/tvStatus"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="6dp"
+
+            android:text="Status: Submitted"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="15sp" />
+
+
+
+        <TextView
+
+            android:id="@+id/tvDueDate"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="6dp"
+
+            android:text="Due: Mar 23, 2:43 PM"
+
+            android:textColor="@color/dt_white_60"
+
+            android:textSize="14sp" />
+
+
+
+        <TextView
+
+            android:id="@+id/tvInstructions"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="10dp"
+
+            android:text="Instructions: Complete honestly."
+
+            android:textColor="@color/dt_white_60"
+
+            android:textSize="14sp" />
+
+
+
+        <TextView
+
+            android:id="@+id/tvAnswersHeader"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="20dp"
+
+            android:text="Submitted Answers"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="18sp"
+
+            android:textStyle="bold" />
+
+
+
+        <LinearLayout
+
+            android:id="@+id/layoutAnswers"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="8dp"
+
+            android:orientation="vertical" />
+
+
+
+        <TextView
+
+            android:id="@+id/tvCoachNoteHeader"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="20dp"
+
+            android:text="Coach Note"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="18sp"
+
+            android:textStyle="bold" />
+
+
+
+        <EditText
+
+            android:id="@+id/etCoachNote"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="120dp"
+
+            android:layout_marginTop="8dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:gravity="top"
+
+            android:hint="Add a note for the athlete"
+
+            android:inputType="textCapSentences|textMultiLine"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <Button
+
+            android:id="@+id/btnApprove"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="20dp"
+
+            android:background="@drawable/dt_button_pill_white_orange"
+
+            android:text="Approve"
+
+            android:textAllCaps="false" />
+
+
+
+        <Button
+
+            android:id="@+id/btnNeedsAttention"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_button_pill_white_orange"
+
+            android:text="Needs Attention"
+
+            android:textAllCaps="false" />
+
+
+
+    </LinearLayout>
+
+</ScrollView>

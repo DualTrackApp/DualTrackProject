@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -27,19 +28,72 @@ class AbsenceFormFragment : Fragment() {
     ): View {
         _b = FragmentAbsenceFormBinding.inflate(inflater, container, false)
 
+        setupSpinners()
+
         b.btnBack.setOnClickListener { findNavController().navigateUp() }
         b.btnSubmitAbsence.setOnClickListener { submitAbsenceForm() }
 
         return b.root
     }
 
-    private fun submitAbsenceForm() {
-        val reason = b.etReason.text.toString().trim()
-        val date = b.etDate.text.toString().trim()
-        val notes = b.etNotes.text.toString().trim()
+    private fun setupSpinners() {
+        val absenceTypes = listOf(
+            "Select absence type",
+            "Class Conflict",
+            "Medical",
+            "Family Emergency",
+            "Travel",
+            "Personal",
+            "Other"
+        )
 
-        if (reason.isBlank() || date.isBlank()) {
-            Toast.makeText(requireContext(), "Please enter reason and date.", Toast.LENGTH_SHORT).show()
+        val urgencyOptions = listOf(
+            "Select urgency",
+            "Low",
+            "Moderate",
+            "High"
+        )
+
+        b.spAbsenceType.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            absenceTypes
+        ).also {
+            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        b.spUrgency.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            urgencyOptions
+        ).also {
+            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+    }
+
+    private fun submitAbsenceForm() {
+        val absenceType = b.spAbsenceType.selectedItem?.toString()?.trim().orEmpty()
+        val reason = b.etReason.text.toString().trim()
+        val startDate = b.etStartDate.text.toString().trim()
+        val endDate = b.etEndDate.text.toString().trim()
+        val classMissed = b.etClassMissed.text.toString().trim()
+        val practiceMissed = b.etPracticeMissed.text.toString().trim()
+        val urgency = b.spUrgency.selectedItem?.toString()?.trim().orEmpty()
+        val contactMethod = b.etContactMethod.text.toString().trim()
+        val additionalNotes = b.etNotes.text.toString().trim()
+
+        if (absenceType == "Select absence type") {
+            Toast.makeText(requireContext(), "Please select an absence type.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (reason.isBlank() || startDate.isBlank() || endDate.isBlank()) {
+            Toast.makeText(requireContext(), "Please complete the required fields.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if (urgency == "Select urgency") {
+            Toast.makeText(requireContext(), "Please select an urgency level.", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -67,27 +121,33 @@ class AbsenceFormFragment : Fragment() {
                     "status" to "pending",
                     "coachNote" to "",
                     "data" to mapOf(
+                        "absenceType" to absenceType,
                         "reason" to reason,
-                        "date" to date,
-                        "notes" to notes
+                        "startDate" to startDate,
+                        "endDate" to endDate,
+                        "classMissed" to classMissed,
+                        "practiceMissed" to practiceMissed,
+                        "urgency" to urgency,
+                        "contactMethod" to contactMethod,
+                        "additionalNotes" to additionalNotes
                     )
                 )
 
                 db.collection("forms")
                     .add(formData)
                     .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Submitted ✓", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Absence form submitted ✓", Toast.LENGTH_SHORT).show()
                         findNavController().navigateUp()
                     }
                     .addOnFailureListener {
                         b.btnSubmitAbsence.isEnabled = true
-                        b.btnSubmitAbsence.text = "Submit Absence Request"
+                        b.btnSubmitAbsence.text = "Submit Absence Form"
                         Toast.makeText(requireContext(), "Error submitting.", Toast.LENGTH_SHORT).show()
                     }
             }
             .addOnFailureListener {
                 b.btnSubmitAbsence.isEnabled = true
-                b.btnSubmitAbsence.text = "Submit Absence Request"
+                b.btnSubmitAbsence.text = "Submit Absence Form"
                 Toast.makeText(requireContext(), "Could not load team.", Toast.LENGTH_SHORT).show()
             }
     }

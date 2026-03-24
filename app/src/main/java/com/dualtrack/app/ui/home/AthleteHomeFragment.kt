@@ -1,303 +1,862 @@
 package com.dualtrack.app.ui.home
 
+
+
 import android.os.Bundle
+
 import android.view.LayoutInflater
+
 import android.view.View
+
 import android.view.ViewGroup
+
 import android.widget.Toast
+
 import androidx.fragment.app.Fragment
+
 import androidx.navigation.fragment.findNavController
+
 import androidx.recyclerview.widget.LinearLayoutManager
+
 import androidx.recyclerview.widget.RecyclerView
+
 import com.dualtrack.app.R
+
 import com.dualtrack.app.databinding.FragmentHomeAthleteBinding
+
 import com.google.firebase.auth.FirebaseAuth
+
 import com.google.firebase.firestore.FirebaseFirestore
+
+import com.google.firebase.firestore.ListenerRegistration
+
 import java.util.Calendar
+
+
 
 class AthleteHomeFragment : Fragment() {
 
+
+
     private var _b: FragmentHomeAthleteBinding? = null
+
     private val b get() = _b!!
 
+
+
     private lateinit var auth: FirebaseAuth
+
     private lateinit var db: FirebaseFirestore
 
-    private var announcementsReg: com.google.firebase.firestore.ListenerRegistration? = null
-    private var eventsReg: com.google.firebase.firestore.ListenerRegistration? = null
+
+
+    private var announcementsReg: ListenerRegistration? = null
+
+    private var eventsReg: ListenerRegistration? = null
+
+    private var requestedFormsReg: ListenerRegistration? = null
+
+    private var submissionsReg: ListenerRegistration? = null
+
+
+
     private var announcementsCount: Int = 0
+
     private var eventsCount: Int = 0
 
+    private var reviewedCount: Int = 0
+
+    private var needsAttentionCount: Int = 0
+
+
+
     override fun onCreateView(
+
         inflater: LayoutInflater,
+
         container: ViewGroup?,
+
         savedInstanceState: Bundle?
+
     ): View {
+
         _b = FragmentHomeAthleteBinding.inflate(inflater, container, false)
 
+
+
         auth = FirebaseAuth.getInstance()
+
         db = FirebaseFirestore.getInstance()
 
+
+
         setupWelcome()
+
         loadTeamStatus()
-        listenForAnnouncementsRow()
-        setupQuickAdd()
+
         setupRecyclerViews()
 
+        listenForRequestedFormsRow()
+
+        listenForSubmissionStatuses()
+
+        listenForAnnouncementsRow()
+
+
+
         b.tvWelcomeTitle.setOnLongClickListener {
+
             findNavController().navigate(R.id.accountFragment)
+
             true
+
         }
+
+
 
         b.includeLogo.root.setOnClickListener {
+
             findNavController().navigate(R.id.accountFragment)
+
         }
+
+
 
         return b.root
+
     }
+
+
 
     private fun setupWelcome() {
+
         val email = auth.currentUser?.email
+
         val name = email?.substringBefore("@").orEmpty().ifBlank { "Athlete" }
+
         b.tvWelcomeTitle.text = "Welcome, $name!"
+
     }
+
+
 
     private fun loadTeamStatus() {
+
         val uid = auth.currentUser?.uid
+
         val email = auth.currentUser?.email
 
+
+
         if (uid.isNullOrBlank()) {
+
             b.tvTeamStatus.text = "No Team Assigned"
+
             return
+
         }
+
+
 
         db.collection("users").document(uid)
+
             .get()
+
             .addOnSuccessListener { snap ->
+
                 val teamName = snap.getString("teamName")
+
                 val teamId = snap.getString("teamId")
+
+
 
                 if (!teamName.isNullOrBlank()) {
+
                     b.tvTeamStatus.text = "Team: $teamName"
+
                     return@addOnSuccessListener
+
                 }
+
+
 
                 if (!teamId.isNullOrBlank()) {
+
                     db.collection("teams").document(teamId)
+
                         .get()
+
                         .addOnSuccessListener { teamSnap ->
+
                             val resolvedName = teamSnap.getString("teamName")
+
                             b.tvTeamStatus.text =
+
                                 if (!resolvedName.isNullOrBlank()) "Team: $resolvedName" else "Team Assigned"
+
                         }
+
                         .addOnFailureListener {
+
                             b.tvTeamStatus.text = "Team Assigned"
+
                         }
+
                     return@addOnSuccessListener
+
                 }
+
+
 
                 if (!email.isNullOrBlank()) {
+
                     db.collection("teamInvites")
+
                         .whereEqualTo("email", email)
+
                         .whereEqualTo("status", "pending")
+
                         .limit(1)
+
                         .get()
+
                         .addOnSuccessListener { qs ->
+
                             val invite = qs.documents.firstOrNull()
+
                             val invitedTeamName = invite?.getString("teamName")
+
                             b.tvTeamStatus.text = if (!invitedTeamName.isNullOrBlank()) {
+
                                 "Invitation pending: $invitedTeamName"
+
                             } else {
+
                                 "Invitation pending"
+
                             }
+
                         }
+
                         .addOnFailureListener {
+
                             b.tvTeamStatus.text = "No Team Assigned"
+
                         }
+
                 } else {
+
                     b.tvTeamStatus.text = "No Team Assigned"
+
                 }
+
             }
+
             .addOnFailureListener {
+
                 b.tvTeamStatus.text = "No Team Assigned"
+
             }
+
     }
 
 
-    private fun setupQuickAdd() {
-        b.btnQuickAdd.setOnClickListener {
-            Toast.makeText(requireContext(), "Quick Add tapped", Toast.LENGTH_SHORT).show()
-        }
-    }
 
     private fun setupRecyclerViews() {
-        setupHorizontalList(b.rvForms, mockForms())
 
-        setupHorizontalList(b.rvAtRisk, mockAtRiskAlerts()) {
-            findNavController().navigate(R.id.action_athleteHome_to_atRiskForm)
+        renderFormsRow()
+
+
+
+        b.rvRequestedForms.isNestedScrollingEnabled = false
+
+        b.rvRequestedForms.layoutManager =
+
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+        b.rvRequestedForms.adapter = HomeCardAdapter(
+
+            listOf(HomeCard("No requested forms", "Coach-assigned forms will appear here"))
+
+        ) { card ->
+
+            handleCardClick(card)
+
         }
+
+
 
         b.rvCalendar.isNestedScrollingEnabled = false
+
         b.rvCalendar.layoutManager =
+
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
         b.rvCalendar.adapter = HomeCardAdapter(mockCalendar()) { card ->
+
             val dayMillis = dayMillisForLabel(card.title)
+
             val args = Bundle().apply { putLong("dayMillis", dayMillis) }
+
             findNavController().navigate(R.id.action_athleteHome_to_dayEvents, args)
+
         }
+
+
 
         setupHorizontalList(b.rvWellness, mockWellness())
+
     }
 
-    private fun setupHorizontalList(
-        recyclerView: RecyclerView,
-        items: List<HomeCard>,
-        onCardClickOverride: (() -> Unit)? = null
-    ) {
-        recyclerView.isNestedScrollingEnabled = false
-        recyclerView.layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
-        recyclerView.adapter = HomeCardAdapter(items) { card ->
-            if (onCardClickOverride != null) {
-                onCardClickOverride.invoke()
-            } else {
-                handleCardClick(card)
-            }
-        }
+
+    private fun renderFormsRow() {
+
+        setupHorizontalList(b.rvForms, buildFormsCards())
+
     }
 
-    private fun handleCardClick(card: HomeCard) {
-        when (card.title) {
-            "Absence Form" -> findNavController().navigate(R.id.absenceFormFragment)
-            "Injury Report" -> findNavController().navigate(R.id.injuryFormFragment)
-            "Wellness Check" -> findNavController().navigate(R.id.wellnessFormFragment)
-            "Academic Check" -> findNavController().navigate(R.id.academicFormFragment)
-            "My Submissions" -> findNavController().navigate(R.id.athleteSubmissionsFragment)
 
-            "Completion Chart", "Wellness Diaries", "Eligibility Flags" -> {
-                val bundle = Bundle().apply { putString("cardTitle", card.title) }
-                findNavController().navigate(R.id.progressWellnessFormFragment, bundle)
+
+    private fun buildFormsCards(): List<HomeCard> {
+
+        val mySubmissionsSubtitle = when {
+
+            needsAttentionCount > 0 -> {
+
+                if (needsAttentionCount == 1) "1 needs attention" else "$needsAttentionCount need attention"
+
             }
 
-            "Injury Overview" -> findNavController().navigate(R.id.injuryFormFragment)
+            reviewedCount > 0 -> {
 
-            else -> Toast.makeText(requireContext(), card.title, Toast.LENGTH_SHORT).show()
-        }
-    }
+                if (reviewedCount == 1) "1 reviewed" else "$reviewedCount reviewed"
 
-    private fun dayMillisForLabel(label: String): Long {
-        val cal = Calendar.getInstance()
-        cal.firstDayOfWeek = Calendar.MONDAY
-        cal.set(Calendar.HOUR_OF_DAY, 0)
-        cal.set(Calendar.MINUTE, 0)
-        cal.set(Calendar.SECOND, 0)
-        cal.set(Calendar.MILLISECOND, 0)
+            }
 
-        val dow = when (label) {
-            "Mon" -> Calendar.MONDAY
-            "Tue" -> Calendar.TUESDAY
-            "Wed" -> Calendar.WEDNESDAY
-            "Thu" -> Calendar.THURSDAY
-            "Fri" -> Calendar.FRIDAY
-            "Sat" -> Calendar.SATURDAY
-            "Sun" -> Calendar.SUNDAY
-            else -> Calendar.MONDAY
+            else -> "View status"
+
         }
 
-        cal.set(Calendar.DAY_OF_WEEK, dow)
-        return cal.timeInMillis
+
+
+        return listOf(
+
+            HomeCard("Absence Form", "Submit"),
+
+            HomeCard("Injury Report", "Submit"),
+
+            HomeCard("My Submissions", mySubmissionsSubtitle)
+
+        )
+
     }
 
-    private fun listenForAnnouncementsRow() {
+
+
+    private fun listenForSubmissionStatuses() {
+
         val uid = auth.currentUser?.uid ?: return
 
-        db.collection("users").document(uid).get()
-            .addOnSuccessListener { snap ->
-                val teamId = snap.getString("teamId")
-                if (teamId.isNullOrBlank()) {
-                    renderAnnouncementsRow(0, 0)
-                    return@addOnSuccessListener
+
+
+        submissionsReg?.remove()
+
+        submissionsReg = db.collection("forms")
+
+            .whereEqualTo("userId", uid)
+
+            .addSnapshotListener { snapshot, e ->
+
+                if (_b == null) return@addSnapshotListener
+
+
+
+                if (e != null) {
+
+                    Toast.makeText(
+
+                        requireContext(),
+
+                        "Submission status error: ${e.message}",
+
+                        Toast.LENGTH_LONG
+
+                    ).show()
+
+                    return@addSnapshotListener
+
                 }
 
-                announcementsReg?.remove()
-                eventsReg?.remove()
 
-                announcementsReg = db.collection("announcements")
-                    .whereEqualTo("teamId", teamId)
-                    .addSnapshotListener { qs, _ ->
-                        announcementsCount = qs?.size() ?: 0
-                        renderAnnouncementsRow(announcementsCount, eventsCount)
-                    }
 
-                eventsReg = db.collection("teamEvents")
-                    .whereEqualTo("teamId", teamId)
-                    .addSnapshotListener { qs, _ ->
-                        eventsCount = qs?.size() ?: 0
-                        renderAnnouncementsRow(announcementsCount, eventsCount)
+                var reviewed = 0
+
+                var needsAttention = 0
+
+                snapshot?.documents?.forEach { doc ->
+
+                    val status = doc.getString("status").orEmpty()
+
+                    val seen = doc.getBoolean("athleteStatusSeen") == true
+
+                    if (!seen) {
+                        when (status) {
+
+                            "approved" -> reviewed += 1
+
+                            "needs_attention" -> {
+
+                                reviewed += 1
+
+                                needsAttention += 1
+
+                            }
+                        }
                     }
+                }
+
+
+
+
+                reviewedCount = reviewed
+
+                needsAttentionCount = needsAttention
+
+                renderFormsRow()
+
             }
-            .addOnFailureListener {
-                renderAnnouncementsRow(0, 0)
-            }
+
     }
 
-    private fun renderAnnouncementsRow(aCount: Int, eCount: Int) {
-        val announcementsCard = HomeCard(
-            title = "Announcements",
-            subtitle = if (aCount == 1) "1 announcement" else "$aCount announcements"
-        )
-        val eventsCard = HomeCard(
-            title = "Events",
-            subtitle = if (eCount == 1) "1 new event" else "$eCount new events"
-        )
 
-        b.rvTasks.isNestedScrollingEnabled = false
-        b.rvTasks.layoutManager =
+
+    private fun setupHorizontalList(
+
+        recyclerView: RecyclerView,
+
+        items: List<HomeCard>
+
+    ) {
+
+        recyclerView.isNestedScrollingEnabled = false
+
+        recyclerView.layoutManager =
+
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
-        b.rvTasks.adapter = HomeCardAdapter(listOf(announcementsCard, eventsCard)) {
-            // any tap goes to the list screen
-            findNavController().navigate(R.id.teamUpdatesFragment)
+
+
+        recyclerView.adapter = HomeCardAdapter(items) { card ->
+
+            handleCardClick(card)
+
         }
+
     }
 
-    private fun mockForms(): List<HomeCard> = listOf(
-        HomeCard("Absence Form", "Submit"),
-        HomeCard("Injury Report", "Submit"),
-        HomeCard("Wellness Check", "Submit"),
-        HomeCard("Academic Check", "Bi-weekly"),
-        HomeCard("My Submissions", "View status")
-    )
 
-    private fun mockAtRiskAlerts(): List<HomeCard> = listOf(
-        HomeCard("Log At-Risk Alert", "Tap to submit")
-    )
+
+    private fun handleCardClick(card: HomeCard) {
+
+        when {
+
+            card.docId != null && card.formType != null -> {
+
+                val args = Bundle().apply {
+
+                    putString("requestId", card.docId)
+
+                }
+
+
+
+                when (card.formType) {
+
+                    "academic" -> findNavController().navigate(R.id.academicFormFragment, args)
+
+                    "wellness" -> findNavController().navigate(R.id.wellnessFormFragment, args)
+
+                    "atRisk" -> findNavController().navigate(R.id.atRiskFormFragment, args)
+
+                }
+
+            }
+
+
+
+            card.title == "Absence Form" -> findNavController().navigate(R.id.absenceFormFragment)
+
+            card.title == "Injury Report" -> findNavController().navigate(R.id.injuryFormFragment)
+
+            card.title == "My Submissions" -> findNavController().navigate(R.id.athleteSubmissionsFragment)
+
+
+
+            card.title == "Completion Chart" || card.title == "Wellness Diaries" || card.title == "Eligibility Flags" -> {
+
+                val bundle = Bundle().apply { putString("cardTitle", card.title) }
+
+                findNavController().navigate(R.id.progressWellnessFormFragment, bundle)
+
+            }
+
+
+
+            card.title == "Injury Overview" -> findNavController().navigate(R.id.injuryFormFragment)
+
+
+
+            card.title == "Announcements" || card.title == "Events" -> {
+
+                findNavController().navigate(R.id.teamUpdatesFragment)
+
+            }
+
+
+
+            card.title == "No requested forms" -> {
+
+                Toast.makeText(requireContext(), "No requested forms right now.", Toast.LENGTH_SHORT).show()
+
+            }
+
+
+
+            else -> {
+
+                Toast.makeText(requireContext(), card.title, Toast.LENGTH_SHORT).show()
+
+            }
+
+        }
+
+    }
+
+
+
+    private fun listenForRequestedFormsRow() {
+
+        val uid = auth.currentUser?.uid ?: return
+
+
+
+        requestedFormsReg?.remove()
+
+        requestedFormsReg = db.collection("forms")
+
+            .whereEqualTo("userId", uid)
+
+            .whereEqualTo("status", "requested")
+
+            .addSnapshotListener { snapshot, e ->
+
+                if (_b == null) return@addSnapshotListener
+
+
+
+                if (e != null) {
+
+                    Toast.makeText(
+
+                        requireContext(),
+
+                        "Requested forms error: ${e.message}",
+
+                        Toast.LENGTH_LONG
+
+                    ).show()
+
+                    return@addSnapshotListener
+
+                }
+
+
+
+                val items = snapshot?.documents?.mapNotNull { doc ->
+
+                    val formType = doc.getString("formType") ?: return@mapNotNull null
+
+                    val title = when (formType) {
+
+                        "academic" -> "Academic Check"
+
+                        "wellness" -> "Wellness Check"
+
+                        "atRisk" -> "At-Risk Alert"
+
+                        else -> return@mapNotNull null
+
+                    }
+
+
+
+                    val dueDate = doc.getString("dueDate").orEmpty()
+
+                    val instructions = doc.getString("requestInstructions").orEmpty()
+
+
+
+                    val subtitle = when {
+
+                        dueDate.isNotBlank() -> "Due: $dueDate"
+
+                        instructions.isNotBlank() -> instructions
+
+                        else -> "Requested by coach"
+
+                    }
+
+
+
+                    HomeCard(
+
+                        title = title,
+
+                        subtitle = subtitle,
+
+                        docId = doc.id,
+
+                        formType = formType
+
+                    )
+
+                }.orEmpty()
+
+
+
+                renderRequestedFormsRow(items)
+
+            }
+
+    }
+
+
+
+    private fun renderRequestedFormsRow(items: List<HomeCard>) {
+
+        val finalItems = if (items.isEmpty()) {
+
+            listOf(HomeCard("No requested forms", "Coach-assigned forms will appear here"))
+
+        } else {
+
+            items
+
+        }
+
+
+
+        b.rvRequestedForms.adapter = HomeCardAdapter(finalItems) { card ->
+
+            handleCardClick(card)
+
+        }
+
+    }
+
+
+
+    private fun listenForAnnouncementsRow() {
+
+        val uid = auth.currentUser?.uid ?: return
+
+
+
+        db.collection("users").document(uid).get()
+
+            .addOnSuccessListener { snap ->
+
+                val teamId = snap.getString("teamId")
+
+                if (teamId.isNullOrBlank()) {
+
+                    renderAnnouncementsRow(0, 0)
+
+                    return@addOnSuccessListener
+
+                }
+
+
+
+                announcementsReg?.remove()
+
+                eventsReg?.remove()
+
+
+
+                announcementsReg = db.collection("announcements")
+
+                    .whereEqualTo("teamId", teamId)
+
+                    .addSnapshotListener { qs, _ ->
+
+                        announcementsCount = qs?.size() ?: 0
+
+                        renderAnnouncementsRow(announcementsCount, eventsCount)
+
+                    }
+
+
+
+                eventsReg = db.collection("teamEvents")
+
+                    .whereEqualTo("teamId", teamId)
+
+                    .addSnapshotListener { qs, _ ->
+
+                        eventsCount = qs?.size() ?: 0
+
+                        renderAnnouncementsRow(announcementsCount, eventsCount)
+
+                    }
+
+            }
+
+            .addOnFailureListener {
+
+                renderAnnouncementsRow(0, 0)
+
+            }
+
+    }
+
+
+
+    private fun renderAnnouncementsRow(aCount: Int, eCount: Int) {
+
+        val announcementsCard = HomeCard(
+
+            title = "Announcements",
+
+            subtitle = if (aCount == 1) "1 announcement" else "$aCount announcements"
+
+        )
+
+        val eventsCard = HomeCard(
+
+            title = "Events",
+
+            subtitle = if (eCount == 1) "1 new event" else "$eCount new events"
+
+        )
+
+
+
+        b.rvTasks.isNestedScrollingEnabled = false
+
+        b.rvTasks.layoutManager =
+
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+
+
+
+        b.rvTasks.adapter = HomeCardAdapter(listOf(announcementsCard, eventsCard)) {
+
+            findNavController().navigate(R.id.teamUpdatesFragment)
+
+        }
+
+    }
+
+
+
+    private fun dayMillisForLabel(label: String): Long {
+
+        val cal = Calendar.getInstance()
+
+        cal.firstDayOfWeek = Calendar.MONDAY
+
+        cal.set(Calendar.HOUR_OF_DAY, 0)
+
+        cal.set(Calendar.MINUTE, 0)
+
+        cal.set(Calendar.SECOND, 0)
+
+        cal.set(Calendar.MILLISECOND, 0)
+
+
+
+        val dow = when (label) {
+
+            "Mon" -> Calendar.MONDAY
+
+            "Tue" -> Calendar.TUESDAY
+
+            "Wed" -> Calendar.WEDNESDAY
+
+            "Thu" -> Calendar.THURSDAY
+
+            "Fri" -> Calendar.FRIDAY
+
+            "Sat" -> Calendar.SATURDAY
+
+            "Sun" -> Calendar.SUNDAY
+
+            else -> Calendar.MONDAY
+
+        }
+
+
+
+        cal.set(Calendar.DAY_OF_WEEK, dow)
+
+        return cal.timeInMillis
+
+    }
+
+
 
     private fun mockCalendar(): List<HomeCard> = listOf(
+
         HomeCard("Mon", "Add events"),
+
         HomeCard("Tue", "Add events"),
+
         HomeCard("Wed", "Add events"),
+
         HomeCard("Thu", "Add events")
+
     )
 
-    private fun mockTasks(): List<HomeCard> = listOf(
-        HomeCard("No tasks yet", "Tap Quick Add")
-    )
+
 
     private fun mockWellness(): List<HomeCard> = listOf(
+
         HomeCard("Completion Chart", "This week"),
+
         HomeCard("Wellness Diaries", "Log today"),
+
         HomeCard("Eligibility Flags", "All clear"),
+
         HomeCard("Injury Overview", "No active injuries")
+
     )
 
+
+
     override fun onDestroyView() {
-        super.onDestroyView()
-        _b = null
+
         announcementsReg?.remove()
+
         eventsReg?.remove()
+
+        requestedFormsReg?.remove()
+
+        submissionsReg?.remove()
+
         announcementsReg = null
+
         eventsReg = null
+
+        requestedFormsReg = null
+
+        submissionsReg = null
+
+        _b = null
+
+        super.onDestroyView()
+
     }
+
 }

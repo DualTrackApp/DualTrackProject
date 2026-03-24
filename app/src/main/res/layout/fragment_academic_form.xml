@@ -1,48 +1,369 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
+
     android:layout_height="match_parent"
-    android:padding="24dp"
+
+    android:background="@color/dt_navy"
+
     android:fillViewport="true">
 
+
+
     <LinearLayout
+
         android:layout_width="match_parent"
+
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+
+        android:orientation="vertical"
+
+        android:padding="24dp">
+
+
 
         <ImageButton
+
             android:id="@+id/btnBack"
+
             android:layout_width="40dp"
+
             android:layout_height="40dp"
+
             android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_media_previous"
+
             android:contentDescription="Back"
+
             android:padding="8dp"
-            app:tint="@color/dt_white" />
 
-        <EditText
-            android:id="@+id/etClasses"
-            android:layout_width="match_parent"
+            android:src="@android:drawable/ic_media_previous"
+
+            android:tint="@color/dt_white" />
+
+
+
+        <TextView
+
+            android:layout_width="wrap_content"
+
             android:layout_height="wrap_content"
-            android:hint="Classes / notes (ex: missing work, attendance, etc.)"
-            android:padding="12dp"
-            android:layout_marginTop="16dp" />
+
+            android:layout_marginTop="12dp"
+
+            android:text="Academic Check"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="24sp"
+
+            android:textStyle="bold" />
+
+
+
+        <TextView
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="8dp"
+
+            android:text="Instruction: Complete this form honestly so your coach can understand your current academic standing and provide support if needed."
+
+            android:textColor="@color/dt_white_60"
+
+            android:textSize="14sp" />
+
+
+
+        <TextView
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="20dp"
+
+            android:text="Academic Overview"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="18sp"
+
+            android:textStyle="bold" />
+
+
 
         <EditText
+
             android:id="@+id/etGpa"
+
             android:layout_width="match_parent"
+
             android:layout_height="wrap_content"
-            android:hint="GPA (optional)"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:hint="Current GPA *"
+
+            android:inputType="numberDecimal"
+
             android:padding="12dp"
-            android:layout_marginTop="16dp" />
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <EditText
+
+            android:id="@+id/etClasses"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="100dp"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:gravity="top|start"
+
+            android:hint="Current classes / schedule *"
+
+            android:inputType="textCapSentences|textMultiLine"
+
+            android:minLines="4"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <Spinner
+
+            android:id="@+id/spStanding"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/bg_spinner_white" />
+
+
+
+        <Spinner
+
+            android:id="@+id/spAttendance"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/bg_spinner_white" />
+
+
+
+        <EditText
+
+            android:id="@+id/etStrongestClass"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:hint="Strongest class"
+
+            android:inputType="textCapSentences"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <EditText
+
+            android:id="@+id/etWeakestClass"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:hint="Class needing most attention"
+
+            android:inputType="textCapSentences"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <EditText
+
+            android:id="@+id/etMissingAssignments"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:hint="Missing / late assignments"
+
+            android:inputType="textCapSentences|textMultiLine"
+
+            android:minLines="2"
+
+            android:gravity="top|start"
+
+            android:padding="12dp"
+
+            android:focusable="true"
+
+            android:focusableInTouchMode="true"
+
+            android:clickable="true"
+
+            android:cursorVisible="true"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <EditText
+
+            android:id="@+id/etConcerns"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="100dp"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:gravity="top|start"
+
+            android:hint="Academic concerns"
+
+            android:inputType="textCapSentences|textMultiLine"
+
+            android:minLines="4"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <EditText
+
+            android:id="@+id/etSupportNeeded"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="100dp"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:gravity="top|start"
+
+            android:hint="Support needed from coach / advisor"
+
+            android:inputType="textCapSentences|textMultiLine"
+
+            android:minLines="4"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <EditText
+
+            android:id="@+id/etProfessorCommunication"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="100dp"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:gravity="top|start"
+
+            android:hint="Have you spoken with professors? Explain."
+
+            android:inputType="textCapSentences|textMultiLine"
+
+            android:minLines="4"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
 
         <Button
+
             android:id="@+id/btnSubmitAcademic"
+
             android:layout_width="match_parent"
+
             android:layout_height="wrap_content"
+
+            android:layout_marginTop="28dp"
+
+            android:background="@drawable/dt_button_pill_white_orange"
+
             android:text="Submit Academic Check"
-            android:layout_marginTop="32dp" />
+
+            android:textAllCaps="false" />
+
+
 
     </LinearLayout>
+
+
+
 </ScrollView>

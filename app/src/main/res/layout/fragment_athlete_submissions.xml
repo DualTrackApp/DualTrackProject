@@ -1,27 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
+
     android:layout_height="match_parent"
+
     android:orientation="vertical"
+
     android:background="@color/dt_navy"
+
     android:padding="16dp">
 
+
+
     <ImageButton
+
         android:id="@+id/btnBack"
+
         android:layout_width="40dp"
+
         android:layout_height="40dp"
+
         android:background="@android:color/transparent"
+
         android:src="@android:drawable/ic_media_previous"
+
         android:contentDescription="Back"
+
         android:padding="8dp"
+
         app:tint="@color/dt_white" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+
+
+    <TextView
+
+        android:id="@+id/tvSubmissionsHeader"
+
         android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="12dp"
+
+        android:text="My Submissions"
+
+        android:textColor="@color/dt_white"
+
+        android:textSize="24sp"
+
+        android:textStyle="bold" />
+
+
+
+    <TextView
+
+        android:id="@+id/tvReviewedNotice"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="10dp"
+
+        android:background="@drawable/dt_input_outline"
+
+        android:padding="12dp"
+
+        android:text="1 form has been reviewed. Check your submission statuses below."
+
+        android:textColor="@color/dt_white"
+
+        android:textSize="14sp"
+
+        android:visibility="gone" />
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+
+        android:id="@+id/recyclerView"
+
+        android:layout_width="match_parent"
+
         android:layout_height="0dp"
+
         android:layout_weight="1"
+
+        android:layout_marginTop="12dp"
+
         android:overScrollMode="never" />
 
+
+
 </LinearLayout>
+

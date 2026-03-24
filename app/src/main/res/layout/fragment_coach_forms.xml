@@ -1,27 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
+
     android:layout_height="match_parent"
+
     android:orientation="vertical"
+
     android:background="@color/dt_navy"
+
     android:padding="16dp">
 
+
+
     <ImageButton
+
         android:id="@+id/btnBack"
+
         android:layout_width="40dp"
+
         android:layout_height="40dp"
+
         android:background="@android:color/transparent"
-        android:src="@android:drawable/ic_media_previous"
+
         android:contentDescription="Back"
+
         android:padding="8dp"
+
+        android:src="@android:drawable/ic_media_previous"
+
         app:tint="@color/dt_white" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+
+
+    <TextView
+
+        android:id="@+id/tvRequestedHeader"
+
         android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="16dp"
+
+        android:layout_marginBottom="8dp"
+
+        android:text="Requested Forms"
+
+        android:textColor="@color/dt_white"
+
+        android:textSize="20sp"
+
+        android:textStyle="bold" />
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+
+        android:id="@+id/rvRequestedForms"
+
+        android:layout_width="match_parent"
+
         android:layout_height="0dp"
+
         android:layout_weight="1"
+
         android:overScrollMode="never" />
 
+
+
+    <TextView
+
+        android:id="@+id/tvSubmittedHeader"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="16dp"
+
+        android:layout_marginBottom="8dp"
+
+        android:text="Submitted Forms To Review"
+
+        android:textColor="@color/dt_white"
+
+        android:textSize="20sp"
+
+        android:textStyle="bold" />
+
+
+
+    <androidx.recyclerview.widget.RecyclerView
+
+        android:id="@+id/rvSubmittedForms"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="0dp"
+
+        android:layout_weight="1"
+
+        android:overScrollMode="never" />
+
+
+
 </LinearLayout>
+

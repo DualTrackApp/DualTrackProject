@@ -1,48 +1,355 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
+
     android:layout_height="match_parent"
-    android:padding="24dp"
+
+    android:background="@color/dt_navy"
+
     android:fillViewport="true">
 
+
+
     <LinearLayout
+
         android:layout_width="match_parent"
+
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+
+        android:orientation="vertical"
+
+        android:padding="24dp">
+
+
 
         <ImageButton
+
             android:id="@+id/btnBack"
+
             android:layout_width="40dp"
+
             android:layout_height="40dp"
+
             android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_media_previous"
+
             android:contentDescription="Back"
+
             android:padding="8dp"
-            app:tint="@color/dt_white" />
+
+            android:src="@android:drawable/ic_media_previous"
+
+            android:tint="@color/dt_white" />
+
+
+
+        <TextView
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:text="Injury Report"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="24sp"
+
+            android:textStyle="bold" />
+
+
+
+        <TextView
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="8dp"
+
+            android:text="Instruction: Complete this report as soon as possible after the injury occurs. Provide as much detail as possible."
+
+            android:textColor="@color/dt_white_60"
+
+            android:textSize="14sp" />
+
+
+
+        <TextView
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="20dp"
+
+            android:text="Injury Details"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="18sp"
+
+            android:textStyle="bold" />
+
+
+
+        <Spinner
+
+            android:id="@+id/spInjuryType"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/bg_spinner_white" />
+
+
 
         <EditText
-            android:id="@+id/etInjury"
+
+            android:id="@+id/etBodyPart"
+
             android:layout_width="match_parent"
+
             android:layout_height="wrap_content"
-            android:hint="Type of injury"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:hint="Body part affected *"
+
+            android:inputType="textCapSentences"
+
             android:padding="12dp"
-            android:layout_marginTop="16dp" />
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
 
         <EditText
-            android:id="@+id/etSeverity"
+
+            android:id="@+id/etInjuryDate"
+
             android:layout_width="match_parent"
+
             android:layout_height="wrap_content"
-            android:hint="Severity (ex: mild / moderate / severe)"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:hint="Date of injury (MM/DD/YYYY) *"
+
             android:padding="12dp"
-            android:layout_marginTop="16dp" />
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <EditText
+
+            android:id="@+id/etInjuryLocation"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:hint="Where did the injury happen? *"
+
+            android:inputType="textCapSentences"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <EditText
+
+            android:id="@+id/etHowOccurred"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="100dp"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:gravity="top"
+
+            android:hint="Describe how the injury occurred *"
+
+            android:inputType="textCapSentences|textMultiLine"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <Spinner
+
+            android:id="@+id/spSeverity"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/bg_spinner_white" />
+
+
+
+        <EditText
+
+            android:id="@+id/etPainLevel"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:hint="Pain level (1-10)"
+
+            android:inputType="number"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <Spinner
+
+            android:id="@+id/spMedicalAttention"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/bg_spinner_white" />
+
+
+
+        <EditText
+
+            android:id="@+id/etClearedBy"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:hint="Who cleared the injury?"
+
+            android:inputType="textCapWords"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <EditText
+
+            android:id="@+id/etReturnTimeline"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="wrap_content"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:hint="Estimated return timeline"
+
+            android:inputType="textCapSentences"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
+
+        <EditText
+
+            android:id="@+id/etNotes"
+
+            android:layout_width="match_parent"
+
+            android:layout_height="120dp"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_input_outline"
+
+            android:gravity="top"
+
+            android:hint="Additional notes"
+
+            android:inputType="textCapSentences|textMultiLine"
+
+            android:padding="12dp"
+
+            android:textColor="@color/dt_white"
+
+            android:textColorHint="@color/dt_white_60" />
+
+
 
         <Button
+
             android:id="@+id/btnSubmitInjury"
+
             android:layout_width="match_parent"
+
             android:layout_height="wrap_content"
+
+            android:layout_marginTop="28dp"
+
+            android:background="@drawable/dt_button_pill_white_orange"
+
             android:text="Submit Injury Report"
-            android:layout_marginTop="32dp" />
+
+            android:textAllCaps="false" />
+
+
 
     </LinearLayout>
+
 </ScrollView>

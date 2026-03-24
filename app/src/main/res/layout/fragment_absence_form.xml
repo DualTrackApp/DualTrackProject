@@ -1,56 +1,313 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+android:layout_width="match_parent"
+
+android:layout_height="match_parent"
+
+android:background="@color/dt_navy"
+
+android:fillViewport="true">
+
+
+
+<LinearLayout
+
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="24dp"
-    android:fillViewport="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+
+    android:orientation="vertical"
+
+    android:padding="24dp">
+
+
+
+    <ImageButton
+
+        android:id="@+id/btnBack"
+
+        android:layout_width="40dp"
+
+        android:layout_height="40dp"
+
+        android:background="@android:color/transparent"
+
+        android:contentDescription="Back"
+
+        android:padding="8dp"
+
+        android:src="@android:drawable/ic_media_previous"
+
+        android:tint="@color/dt_white" />
+
+
+
+    <TextView
+
+        android:layout_width="wrap_content"
+
         android:layout_height="wrap_content"
-        android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/btnBack"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="@android:color/transparent"
-            android:src="@android:drawable/ic_media_previous"
-            android:contentDescription="Back"
-            android:padding="8dp"
-            app:tint="@color/dt_white" />
+        android:layout_marginTop="12dp"
 
-        <EditText
-            android:id="@+id/etReason"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Reason for absence"
-            android:padding="12dp"
-            android:layout_marginTop="16dp" />
+        android:text="Absence Form"
 
-        <EditText
-            android:id="@+id/etDate"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Date (MM/DD/YYYY)"
-            android:padding="12dp"
-            android:layout_marginTop="16dp" />
+        android:textColor="@color/dt_white"
 
-        <EditText
-            android:id="@+id/etNotes"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Additional notes (optional)"
-            android:padding="12dp"
-            android:layout_marginTop="16dp" />
+        android:textSize="24sp"
 
-        <Button
-            android:id="@+id/btnSubmitAbsence"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Submit Absence Request"
-            android:layout_marginTop="32dp" />
+        android:textStyle="bold" />
 
-    </LinearLayout>
+
+
+    <TextView
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="8dp"
+
+        android:text="Instruction: This form should be submitted at least 24 hours in advance whenever possible."
+
+        android:textColor="@color/dt_white_60"
+
+        android:textSize="14sp" />
+
+
+
+    <TextView
+
+        android:layout_width="wrap_content"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="20dp"
+
+        android:text="Absence Details"
+
+        android:textColor="@color/dt_white"
+
+        android:textSize="18sp"
+
+        android:textStyle="bold" />
+
+
+
+    <Spinner
+
+        android:id="@+id/spAbsenceType"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="12dp"
+
+        android:background="@drawable/bg_spinner_white" />
+
+
+
+    <EditText
+
+        android:id="@+id/etReason"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="12dp"
+
+        android:background="@drawable/dt_input_outline"
+
+        android:hint="Reason for absence *"
+
+        android:inputType="textCapSentences"
+
+        android:padding="12dp"
+
+        android:textColor="@color/dt_white"
+
+        android:textColorHint="@color/dt_white_60" />
+
+
+
+    <EditText
+
+        android:id="@+id/etStartDate"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="12dp"
+
+        android:background="@drawable/dt_input_outline"
+
+        android:hint="Start date (MM/DD/YYYY) *"
+
+        android:padding="12dp"
+
+        android:textColor="@color/dt_white"
+
+        android:textColorHint="@color/dt_white_60" />
+
+
+
+    <EditText
+
+        android:id="@+id/etEndDate"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="12dp"
+
+        android:background="@drawable/dt_input_outline"
+
+        android:hint="End date (MM/DD/YYYY) *"
+
+        android:padding="12dp"
+
+        android:textColor="@color/dt_white"
+
+        android:textColorHint="@color/dt_white_60" />
+
+
+
+    <EditText
+
+        android:id="@+id/etClassMissed"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="12dp"
+
+        android:background="@drawable/dt_input_outline"
+
+        android:hint="Class / commitment that will be missed"
+
+        android:inputType="textCapSentences"
+
+        android:padding="12dp"
+
+        android:textColor="@color/dt_white"
+
+        android:textColorHint="@color/dt_white_60" />
+
+
+
+    <EditText
+
+        android:id="@+id/etPracticeMissed"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="12dp"
+
+        android:background="@drawable/dt_input_outline"
+
+        android:hint="Practice / game impact"
+
+        android:inputType="textCapSentences"
+
+        android:padding="12dp"
+
+        android:textColor="@color/dt_white"
+
+        android:textColorHint="@color/dt_white_60" />
+
+
+
+    <Spinner
+
+        android:id="@+id/spUrgency"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="12dp"
+
+        android:background="@drawable/bg_spinner_white" />
+
+
+
+    <EditText
+
+        android:id="@+id/etContactMethod"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="12dp"
+
+        android:background="@drawable/dt_input_outline"
+
+        android:hint="Preferred contact method"
+
+        android:inputType="textCapSentences"
+
+        android:padding="12dp"
+
+        android:textColor="@color/dt_white"
+
+        android:textColorHint="@color/dt_white_60" />
+
+
+
+    <EditText
+
+        android:id="@+id/etNotes"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="120dp"
+
+        android:layout_marginTop="12dp"
+
+        android:background="@drawable/dt_input_outline"
+
+        android:gravity="top"
+
+        android:hint="Additional notes"
+
+        android:inputType="textCapSentences|textMultiLine"
+
+        android:padding="12dp"
+
+        android:textColor="@color/dt_white"
+
+        android:textColorHint="@color/dt_white_60" />
+
+
+
+    <Button
+
+        android:id="@+id/btnSubmitAbsence"
+
+        android:layout_width="match_parent"
+
+        android:layout_height="wrap_content"
+
+        android:layout_marginTop="28dp"
+
+        android:background="@drawable/dt_button_pill_white_orange"
+
+        android:text="Submit Absence Form"
+
+        android:textAllCaps="false" />
+
+
+
+</LinearLayout>
+
 </ScrollView>
