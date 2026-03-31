@@ -2,40 +2,47 @@ package com.dualtrack.app.ui.calendar
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.recyclerview.widget.DiffUtil
-import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.dualtrack.app.R
+import com.dualtrack.app.databinding.ItemDayEventBinding
 
-class DayEventsAdapter : ListAdapter<CalendarEvent, DayEventsAdapter.VH>(Diff) {
+class DayEventsAdapter(
+    private val onClick: (CalendarEvent) -> Unit
+) : RecyclerView.Adapter<DayEventsAdapter.VH>() {
 
-    object Diff : DiffUtil.ItemCallback<CalendarEvent>() {
-        override fun areItemsTheSame(oldItem: CalendarEvent, newItem: CalendarEvent): Boolean {
-            return oldItem.id == newItem.id
-        }
+    private var items: List<CalendarEvent> = emptyList()
 
-        override fun areContentsTheSame(oldItem: CalendarEvent, newItem: CalendarEvent): Boolean {
-            return oldItem == newItem
-        }
-    }
+    inner class VH(val b: ItemDayEventBinding) : RecyclerView.ViewHolder(b.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_day_event, parent, false)
-        return VH(view as ViewGroup)
+        val binding = ItemDayEventBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return VH(binding)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.bind(getItem(position))
+        val item = items[position]
+
+        val titleText = buildString {
+            if (item.time.isNotBlank()) append("${item.time} - ")
+            append(item.title)
+        }
+
+        holder.b.tvTitle.text = titleText
+        holder.b.tvDetails.text =
+            if (item.details.isNotBlank()) item.details else "No additional details"
+
+        holder.b.root.setOnClickListener {
+            onClick(item)
+        }
     }
 
-    class VH(private val root: ViewGroup) : RecyclerView.ViewHolder(root) {
-        private val tvTitle: TextView = root.findViewById(R.id.tvTitle)
-        private val tvDetails: TextView = root.findViewById(R.id.tvDetails)
+    override fun getItemCount(): Int = items.size
 
-        fun bind(item: CalendarEvent) {
-            tvTitle.text = item.title
-            tvDetails.text = item.details
-        }
+    fun submitList(list: List<CalendarEvent>) {
+        items = list
+        notifyDataSetChanged()
     }
 }

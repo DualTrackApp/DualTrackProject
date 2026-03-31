@@ -1,400 +1,231 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
-
     xmlns:app="http://schemas.android.com/apk/res-auto"
-
     xmlns:tools="http://schemas.android.com/tools"
-
     android:id="@+id/app_nav"
-
     app:startDestination="@id/loginFragment">
 
-
-
     <action
-
         android:id="@+id/action_global_loginFragment"
-
         app:destination="@id/loginFragment"
-
         app:popUpTo="@id/app_nav"
-
         app:popUpToInclusive="true" />
 
-
-
     <fragment
-
         android:id="@+id/dayEventsFragment"
-
         android:name="com.dualtrack.app.ui.calendar.DayEventsFragment"
-
         android:label="Day Events">
 
-
-
         <argument
-
             android:name="dayMillis"
-
             app:argType="long"
-
             android:defaultValue="0L" />
 
-
-
         <action
-
             android:id="@+id/action_dayEvents_to_addEvent"
-
             app:destination="@id/addEventFragment" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/addEventFragment"
-
         android:name="com.dualtrack.app.ui.calendar.AddEventFragment"
-
         android:label="Add Event">
 
-
-
         <argument
-
             android:name="dayMillis"
-
             app:argType="long"
-
             android:defaultValue="0L" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/accountFragment"
-
         android:name="com.dualtrack.app.ui.account.AccountFragment"
-
         android:label="Account"
-
         tools:layout="@layout/fragment_account" />
 
-
-
     <fragment
-
         android:id="@+id/loginFragment"
-
         android:name="com.dualtrack.app.ui.auth.LoginFragment"
-
         android:label="Login">
 
-
-
         <action
-
             android:id="@+id/action_login_to_athleteHome"
-
             app:destination="@id/athleteHomeFragment" />
 
-
-
         <action
-
             android:id="@+id/action_login_to_coachHome"
-
             app:destination="@id/coachHomeFragment" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/registerFragment"
-
         android:name="com.dualtrack.app.ui.auth.RegisterFragment"
-
         android:label="Register">
 
-
-
         <action
-
             android:id="@+id/action_register_to_athleteHome"
-
             app:destination="@id/athleteHomeFragment" />
 
-
-
         <action
-
             android:id="@+id/action_register_to_coachHome"
-
             app:destination="@id/coachHomeFragment" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/forgotPasswordFragment"
-
         android:name="com.dualtrack.app.ui.auth.ForgotPasswordFragment"
-
         android:label="Forgot Password" />
 
-
-
     <fragment
-
         android:id="@+id/homeFragment"
-
         android:name="com.dualtrack.app.ui.home.HomeFragment"
-
         android:label="Home" />
 
-
-
     <fragment
-
         android:id="@+id/athleteHomeFragment"
-
         android:name="com.dualtrack.app.ui.home.AthleteHomeFragment"
-
         android:label="Athlete Home">
 
-
-
         <action
-
             android:id="@+id/action_athleteHome_to_absenceForm"
-
             app:destination="@id/absenceFormFragment" />
 
-
-
         <action
-
             android:id="@+id/action_athleteHome_to_athleteSubmissions"
-
             app:destination="@id/athleteSubmissionsFragment" />
 
-
-
         <action
-
             android:id="@+id/action_athleteHome_to_dayEvents"
-
             app:destination="@id/dayEventsFragment" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/coachHomeFragment"
-
         android:name="com.dualtrack.app.ui.coach.CoachDashboardFragment"
-
         android:label="Coach Dashboard"
-
         tools:layout="@layout/fragment_coach_dashboard">
 
-
-
         <action
-
             android:id="@+id/action_coachHome_to_coachForms"
-
             app:destination="@id/coachFormsFragment" />
 
+        <action
+            android:id="@+id/action_coachHome_to_coachTeam"
+            app:destination="@id/coachTeamFragment" />
     </fragment>
 
+    <fragment
+        android:id="@+id/coachTeamFragment"
+        android:name="com.dualtrack.app.ui.coach.CoachTeamFragment"
+        android:label="Review Team">
 
+        <action
+            android:id="@+id/action_coachTeam_to_playerCalendar"
+            app:destination="@id/coachPlayerCalendarFragment" />
+    </fragment>
 
     <fragment
+        android:id="@+id/coachPlayerCalendarFragment"
+        android:name="com.dualtrack.app.ui.coach.CoachPlayerCalendarFragment"
+        android:label="Player Calendar">
 
+        <argument
+            android:name="playerUid"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <argument
+            android:name="playerEmail"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
         android:id="@+id/absenceFormFragment"
-
         android:name="com.dualtrack.app.ui.forms.AbsenceFormFragment"
-
         android:label="Absence Form">
 
-
-
         <argument
-
             android:name="requestId"
-
             app:argType="string"
-
             android:defaultValue="" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/athleteSubmissionsFragment"
-
         android:name="com.dualtrack.app.ui.forms.AthleteSubmissionsFragment"
-
         android:label="My Submissions"
-
         tools:layout="@layout/fragment_athlete_submissions" />
 
-
-
     <fragment
-
         android:id="@+id/coachFormsFragment"
-
         android:name="com.dualtrack.app.ui.forms.CoachFormsFragment"
-
         android:label="Team Forms"
-
         tools:layout="@layout/fragment_coach_forms" />
 
-
-
     <fragment
-
         android:id="@+id/coachFormDetailFragment"
-
         android:name="com.dualtrack.app.ui.forms.CoachFormDetailFragment"
-
         android:label="Coach Form Detail">
 
-
-
         <argument
-
             android:name="formId"
-
             app:argType="string"
-
             android:defaultValue="" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/injuryFormFragment"
-
         android:name="com.dualtrack.app.ui.forms.InjuryFormFragment"
-
         android:label="Injury Report">
 
-
-
         <argument
-
             android:name="requestId"
-
             app:argType="string"
-
             android:defaultValue="" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/wellnessFormFragment"
-
         android:name="com.dualtrack.app.ui.forms.WellnessFormFragment"
-
         android:label="Wellness Check">
 
-
-
         <argument
-
             android:name="requestId"
-
             app:argType="string"
-
             android:defaultValue="" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/academicFormFragment"
-
         android:name="com.dualtrack.app.ui.forms.AcademicFormFragment"
-
         android:label="Academic Check">
 
-
-
         <argument
-
             android:name="requestId"
-
             app:argType="string"
-
             android:defaultValue="" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/atRiskFormFragment"
-
         android:name="com.dualtrack.app.ui.forms.AtRiskFormFragment"
-
         android:label="At-Risk Alert">
 
-
-
         <argument
-
             android:name="requestId"
-
             app:argType="string"
-
             android:defaultValue="" />
-
     </fragment>
 
-
-
     <fragment
-
         android:id="@+id/progressWellnessFormFragment"
-
         android:name="com.dualtrack.app.ui.forms.ProgressWellnessFormFragment"
-
         android:label="Progress and Wellness" />
 
-
-
     <fragment
-
         android:id="@+id/teamUpdatesFragment"
-
         android:name="com.dualtrack.app.ui.updates.TeamUpdatesFragment"
-
         android:label="Team Updates" />
 
 </navigation>
-

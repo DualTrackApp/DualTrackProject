@@ -6,18 +6,29 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dualtrack.app.databinding.ItemEmailRowBinding
 
 class CoachEmailAdapter(
-    private val items: MutableList<String> = mutableListOf()
+    private val onClick: ((String) -> Unit)? = null
 ) : RecyclerView.Adapter<CoachEmailAdapter.VH>() {
 
-    class VH(val b: ItemEmailRowBinding) : RecyclerView.ViewHolder(b.root)
+    private val items: MutableList<String> = mutableListOf()
+
+    inner class VH(val b: ItemEmailRowBinding) : RecyclerView.ViewHolder(b.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
-        val b = ItemEmailRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
-        return VH(b)
+        val binding = ItemEmailRowBinding.inflate(
+            LayoutInflater.from(parent.context),
+            parent,
+            false
+        )
+        return VH(binding)
     }
 
     override fun onBindViewHolder(holder: VH, position: Int) {
-        holder.b.tvEmail.text = items[position]
+        val email = items[position]
+        holder.b.tvEmail.text = email
+
+        holder.itemView.setOnClickListener {
+            onClick?.invoke(email)
+        }
     }
 
     override fun getItemCount(): Int = items.size

@@ -27,7 +27,7 @@ class CoachHomeFragment : Fragment() {
         _b = FragmentHomeCoachBinding.inflate(inflater, container, false)
 
         b.btnReviewForms.setOnClickListener {
-            findNavController().navigate(R.id.coachFormsFragment)
+            findNavController().navigate(R.id.action_coachHome_to_coachTeam)
         }
 
         b.btnReviewForms.setOnLongClickListener {

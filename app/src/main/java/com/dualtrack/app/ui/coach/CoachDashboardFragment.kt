@@ -1,21 +1,45 @@
 package com.dualtrack.app.ui.coach
+
+
+
 import android.os.Bundle
+
 import android.view.LayoutInflater
+
 import android.view.View
+
 import android.view.ViewGroup
+
+import android.widget.ArrayAdapter
+
 import android.widget.EditText
+
 import android.widget.LinearLayout
+
+import android.widget.Spinner
+
 import android.widget.Toast
+
 import androidx.fragment.app.Fragment
+
 import androidx.navigation.fragment.findNavController
+
 import androidx.recyclerview.widget.LinearLayoutManager
+
 import com.dualtrack.app.R
+
 import com.dualtrack.app.databinding.FragmentCoachDashboardBinding
+
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+
 import com.google.firebase.Timestamp
+
 import com.google.firebase.auth.FirebaseAuth
+
 import com.google.firebase.firestore.FirebaseFirestore
+
 import com.google.firebase.firestore.ListenerRegistration
+
 import com.google.firebase.firestore.SetOptions
 
 
@@ -123,6 +147,14 @@ class CoachDashboardFragment : Fragment() {
         b.btnAddEvent.setOnClickListener { showCreateEventDialog() }
 
         b.btnSendForms.setOnClickListener { showSendFormDialog() }
+
+
+
+        b.btnReviewTeam.setOnClickListener {
+
+            findNavController().navigate(R.id.action_coachHome_to_coachTeam)
+
+        }
 
 
 
@@ -926,9 +958,21 @@ class CoachDashboardFragment : Fragment() {
 
 
 
-            val titleInput = EditText(requireContext()).apply { hint = "Announcement title" }
+            val titleInput = EditText(requireContext()).apply {
 
-            val msgInput = EditText(requireContext()).apply { hint = "Message" }
+                hint = "Announcement title"
+
+            }
+
+
+
+            val msgInput = EditText(requireContext()).apply {
+
+                hint = "Team message"
+
+                minLines = 4
+
+            }
 
 
 
@@ -966,7 +1010,7 @@ class CoachDashboardFragment : Fragment() {
 
                     if (title.isBlank() || message.isBlank()) {
 
-                        Toast.makeText(requireContext(), "Title + message required.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Title and message are required.", Toast.LENGTH_SHORT).show()
 
                         return@setPositiveButton
 
@@ -986,7 +1030,9 @@ class CoachDashboardFragment : Fragment() {
 
                         "message" to message,
 
-                        "createdAt" to Timestamp.now()
+                        "createdAt" to Timestamp.now(),
+
+                        "seenBy" to emptyList<String>()
 
                     )
 
@@ -1036,11 +1082,73 @@ class CoachDashboardFragment : Fragment() {
 
 
 
-            val titleInput = EditText(requireContext()).apply { hint = "Event title" }
+            val titleInput = EditText(requireContext()).apply {
 
-            val detailsInput = EditText(requireContext()).apply { hint = "Details (optional)" }
+                hint = "Event title"
 
-            val dateInput = EditText(requireContext()).apply { hint = "Date (optional, ex: Mar 3 @ 4pm)" }
+            }
+
+
+
+            val eventTypeSpinner = Spinner(requireContext())
+
+            val eventTypes = listOf("Game", "Practice", "Team Dinner", "Meeting", "Other")
+
+            eventTypeSpinner.adapter = ArrayAdapter(
+
+                requireContext(),
+
+                android.R.layout.simple_spinner_item,
+
+                eventTypes
+
+            ).also {
+
+                it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+            }
+
+
+
+            val dateInput = EditText(requireContext()).apply {
+
+                hint = "Date (ex: Apr 14)"
+
+            }
+
+
+
+            val timeInput = EditText(requireContext()).apply {
+
+                hint = "Time (ex: 6:00 PM)"
+
+            }
+
+
+
+            val locationInput = EditText(requireContext()).apply {
+
+                hint = "Location"
+
+            }
+
+
+
+            val attireInput = EditText(requireContext()).apply {
+
+                hint = "Attire / jersey / what to wear"
+
+            }
+
+
+
+            val detailsInput = EditText(requireContext()).apply {
+
+                hint = "Event details"
+
+                minLines = 3
+
+            }
 
 
 
@@ -1054,9 +1162,17 @@ class CoachDashboardFragment : Fragment() {
 
                 addView(titleInput)
 
-                addView(detailsInput)
+                addView(eventTypeSpinner)
 
                 addView(dateInput)
+
+                addView(timeInput)
+
+                addView(locationInput)
+
+                addView(attireInput)
+
+                addView(detailsInput)
 
             }
 
@@ -1074,15 +1190,31 @@ class CoachDashboardFragment : Fragment() {
 
                     val title = titleInput.text.toString().trim()
 
-                    val details = detailsInput.text.toString().trim()
+                    val eventType = eventTypeSpinner.selectedItem?.toString().orEmpty()
 
                     val eventDate = dateInput.text.toString().trim()
 
+                    val eventTime = timeInput.text.toString().trim()
+
+                    val location = locationInput.text.toString().trim()
+
+                    val attire = attireInput.text.toString().trim()
+
+                    val details = detailsInput.text.toString().trim()
 
 
-                    if (title.isBlank()) {
 
-                        Toast.makeText(requireContext(), "Event title required.", Toast.LENGTH_SHORT).show()
+                    if (title.isBlank() || eventDate.isBlank() || eventTime.isBlank()) {
+
+                        Toast.makeText(
+
+                            requireContext(),
+
+                            "Title, date, and time are required.",
+
+                            Toast.LENGTH_SHORT
+
+                        ).show()
 
                         return@setPositiveButton
 
@@ -1100,11 +1232,21 @@ class CoachDashboardFragment : Fragment() {
 
                         "title" to title,
 
-                        "details" to details,
+                        "eventType" to eventType,
 
                         "eventDate" to eventDate,
 
-                        "createdAt" to Timestamp.now()
+                        "eventTime" to eventTime,
+
+                        "location" to location,
+
+                        "attire" to attire,
+
+                        "details" to details,
+
+                        "createdAt" to Timestamp.now(),
+
+                        "seenBy" to emptyList<String>()
 
                     )
 
@@ -1233,4 +1375,5 @@ class CoachDashboardFragment : Fragment() {
     }
 
 }
+
 

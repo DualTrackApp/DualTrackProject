@@ -25,6 +25,17 @@
         android:textColorHint="@color/dt_white_60" />
 
     <EditText
+        android:id="@+id/etTime"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:layout_marginTop="@dimen/dt_gap_md"
+        android:hint="Time (e.g. 11:00 AM)"
+        android:background="@drawable/dt_input_outline"
+        android:padding="14dp"
+        android:textColor="@color/dt_white"
+        android:textColorHint="@color/dt_white_60" />
+
+    <EditText
         android:id="@+id/etDetails"
         android:layout_width="match_parent"
         android:layout_height="140dp"

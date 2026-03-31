@@ -49,6 +49,7 @@ class AddEventFragment : Fragment() {
         val dayMillis = normalizeDayMillis(rawDayMillis)
 
         val title = b.etTitle.text?.toString()?.trim().orEmpty()
+        val time = b.etTime.text?.toString()?.trim().orEmpty()
         val details = b.etDetails.text?.toString()?.trim().orEmpty()
 
         if (title.isBlank()) {
@@ -62,6 +63,7 @@ class AddEventFragment : Fragment() {
 
         val data = hashMapOf(
             "title" to title,
+            "time" to time,
             "details" to details,
             "dayMillis" to dayMillis,
             "createdAt" to FieldValue.serverTimestamp()
@@ -72,13 +74,7 @@ class AddEventFragment : Fragment() {
             .collection("events")
             .add(data)
             .addOnSuccessListener {
-                AlertDialog.Builder(requireContext())
-                    .setTitle("Saved")
-                    .setMessage("Event added.")
-                    .setPositiveButton("OK") { _, _ ->
-                        findNavController().popBackStack()
-                    }
-                    .show()
+                findNavController().popBackStack()
             }
             .addOnFailureListener { e ->
                 AlertDialog.Builder(requireContext())

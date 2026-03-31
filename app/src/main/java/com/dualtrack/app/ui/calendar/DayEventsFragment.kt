@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -27,7 +28,14 @@ class DayEventsFragment : Fragment() {
 
     private var reg: ListenerRegistration? = null
 
-    private val adapter = DayEventsAdapter()
+    private val adapter = DayEventsAdapter { event ->
+        val message = buildString {
+            append(event.title)
+            if (event.time.isNotBlank()) append("\nTime: ${event.time}")
+            if (event.details.isNotBlank()) append("\nDetails: ${event.details}")
+        }
+        Toast.makeText(requireContext(), message, Toast.LENGTH_LONG).show()
+    }
 
     private var dayMillis: Long = 0L
 
@@ -80,14 +88,17 @@ class DayEventsFragment : Fragment() {
                 val list = snap?.documents.orEmpty().mapNotNull { d ->
                     val title = d.getString("title") ?: return@mapNotNull null
                     val details = d.getString("details") ?: ""
+                    val time = d.getString("time") ?: ""
                     val dm = d.getLong("dayMillis") ?: dayMillis
+
                     CalendarEvent(
                         id = d.id,
                         title = title,
                         details = details,
+                        time = time,
                         dayMillis = dm
                     )
-                }
+                }.sortedBy { it.time }
 
                 adapter.submitList(list)
                 setEmpty(list.isEmpty())

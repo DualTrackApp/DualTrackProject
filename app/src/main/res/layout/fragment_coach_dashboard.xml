@@ -1,195 +1,415 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
+
     android:layout_height="match_parent"
+
     android:background="@color/dt_navy">
 
+
+
     <androidx.constraintlayout.widget.ConstraintLayout
+
         android:layout_width="match_parent"
+
         android:layout_height="wrap_content"
+
         android:padding="24dp">
 
+
+
         <include
+
             android:id="@+id/logo"
+
             layout="@layout/include_dualtrack_logo"
+
             app:layout_constraintTop_toTopOf="parent"
+
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintEnd_toEndOf="parent" />
 
+
+
         <TextView
+
             android:id="@+id/tvWelcome"
+
             android:layout_width="wrap_content"
+
             android:layout_height="wrap_content"
+
             android:text="Welcome Coach!"
+
             android:textColor="@color/dt_white"
+
             android:textSize="22sp"
+
             android:textStyle="bold"
+
             android:layout_marginTop="24dp"
+
             app:layout_constraintTop_toBottomOf="@id/logo"
+
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintEnd_toEndOf="parent" />
+
+
 
         <androidx.constraintlayout.widget.ConstraintLayout
+
             android:id="@+id/btnRow"
+
             android:layout_width="0dp"
+
             android:layout_height="wrap_content"
+
             android:layout_marginTop="16dp"
+
             app:layout_constraintTop_toBottomOf="@id/tvWelcome"
+
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintEnd_toEndOf="parent">
 
+
+
             <Button
+
                 android:id="@+id/btnAddAnnouncement"
+
                 android:layout_width="0dp"
+
                 android:layout_height="wrap_content"
+
                 android:text="Create Announcement"
+
                 android:textAllCaps="false"
+
                 android:background="@drawable/dt_button_pill_white_orange"
+
                 android:paddingHorizontal="20dp"
+
                 android:paddingVertical="10dp"
+
                 app:layout_constraintStart_toStartOf="parent"
+
                 app:layout_constraintEnd_toStartOf="@id/btnAddEvent"
+
                 app:layout_constraintTop_toTopOf="parent"
+
                 app:layout_constraintBottom_toBottomOf="parent"
+
                 app:layout_constraintHorizontal_chainStyle="spread" />
 
+
+
             <Button
+
                 android:id="@+id/btnAddEvent"
+
                 android:layout_width="0dp"
+
                 android:layout_height="wrap_content"
+
                 android:text="Add Event"
+
                 android:textAllCaps="false"
+
                 android:background="@drawable/dt_button_pill_white_orange"
+
                 android:paddingHorizontal="20dp"
+
                 android:paddingVertical="10dp"
+
                 android:layout_marginStart="12dp"
+
                 app:layout_constraintStart_toEndOf="@id/btnAddAnnouncement"
+
                 app:layout_constraintEnd_toEndOf="parent"
+
                 app:layout_constraintTop_toTopOf="parent"
+
                 app:layout_constraintBottom_toBottomOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
+
+
         <Button
+
             android:id="@+id/btnSendForms"
+
             android:layout_width="0dp"
+
             android:layout_height="wrap_content"
+
             android:layout_marginTop="12dp"
+
             android:background="@drawable/dt_button_pill_white_orange"
+
             android:text="Send Forms"
+
             android:textAllCaps="false"
+
             android:paddingVertical="12dp"
+
             app:layout_constraintTop_toBottomOf="@id/btnRow"
+
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:id="@+id/tvAthleteTitle"
-            android:layout_width="wrap_content"
+
+
+        <Button
+
+            android:id="@+id/btnReviewTeam"
+
+            android:layout_width="0dp"
+
             android:layout_height="wrap_content"
-            android:text="Athlete Assignment"
-            android:textColor="@color/dt_white"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_marginTop="32dp"
+
+            android:layout_marginTop="12dp"
+
+            android:background="@drawable/dt_button_pill_white_orange"
+
+            android:text="Review Team"
+
+            android:textAllCaps="false"
+
+            android:paddingVertical="12dp"
+
             app:layout_constraintTop_toBottomOf="@id/btnSendForms"
+
+            app:layout_constraintStart_toStartOf="parent"
+
+            app:layout_constraintEnd_toEndOf="parent" />
+
+
+
+        <TextView
+
+            android:id="@+id/tvAthleteTitle"
+
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+
+            android:text="Athlete Assignment"
+
+            android:textColor="@color/dt_white"
+
+            android:textSize="18sp"
+
+            android:textStyle="bold"
+
+            android:layout_marginTop="32dp"
+
+            app:layout_constraintTop_toBottomOf="@id/btnReviewTeam"
+
             app:layout_constraintStart_toStartOf="parent" />
+
+
 
         <ImageView
+
             android:id="@+id/ivAthleteArrow"
+
             android:layout_width="16dp"
+
             android:layout_height="16dp"
+
             android:src="@drawable/ic_plus_circle"
+
             app:tint="@color/dt_white"
+
             android:layout_marginStart="8dp"
+
             app:layout_constraintStart_toEndOf="@id/tvAthleteTitle"
+
             app:layout_constraintBottom_toBottomOf="@id/tvAthleteTitle" />
 
+
+
         <androidx.recyclerview.widget.RecyclerView
+
             android:id="@+id/rvAthletes"
+
             android:layout_width="0dp"
+
             android:layout_height="wrap_content"
+
             android:layout_marginTop="16dp"
+
             android:background="@drawable/bg_spinner_white"
+
             android:padding="12dp"
+
             android:nestedScrollingEnabled="false"
+
             app:layout_constraintTop_toBottomOf="@id/tvAthleteTitle"
+
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintEnd_toEndOf="parent" />
 
+
+
         <TextView
+
             android:id="@+id/tvFlagsTitle"
+
             android:layout_width="wrap_content"
+
             android:layout_height="wrap_content"
+
             android:text="At-Risk Flags"
+
             android:textColor="@color/dt_white"
+
             android:textSize="18sp"
+
             android:textStyle="bold"
+
             android:layout_marginTop="24dp"
+
             app:layout_constraintTop_toBottomOf="@id/rvAthletes"
+
             app:layout_constraintStart_toStartOf="parent" />
 
+
+
         <androidx.recyclerview.widget.RecyclerView
+
             android:id="@+id/rvFlags"
+
             android:layout_width="0dp"
+
             android:layout_height="wrap_content"
+
             android:layout_marginTop="16dp"
+
             android:background="@drawable/bg_spinner_white"
+
             android:padding="12dp"
+
             android:nestedScrollingEnabled="false"
+
             app:layout_constraintTop_toBottomOf="@id/tvFlagsTitle"
+
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintEnd_toEndOf="parent" />
+
+
 
         <TextView
+
             android:id="@+id/tvWellnessTitle"
+
             android:layout_width="wrap_content"
+
             android:layout_height="wrap_content"
+
             android:text="Wellness Trends"
+
             android:textColor="@color/dt_white"
+
             android:textSize="18sp"
+
             android:textStyle="bold"
+
             android:layout_marginTop="24dp"
+
             app:layout_constraintTop_toBottomOf="@id/rvFlags"
+
             app:layout_constraintStart_toStartOf="parent" />
 
+
+
         <androidx.recyclerview.widget.RecyclerView
+
             android:id="@+id/rvWellness"
+
             android:layout_width="0dp"
+
             android:layout_height="wrap_content"
+
             android:layout_marginTop="16dp"
+
             android:background="@drawable/bg_spinner_white"
+
             android:padding="12dp"
+
             android:nestedScrollingEnabled="false"
+
             app:layout_constraintTop_toBottomOf="@id/tvWellnessTitle"
+
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintEnd_toEndOf="parent" />
 
+
+
         <Button
+
             android:id="@+id/btnTeamForms"
+
             android:layout_width="0dp"
+
             android:layout_height="wrap_content"
+
             android:layout_marginTop="24dp"
+
             android:background="@drawable/dt_button_pill_white_orange"
+
             android:text="Review Team Forms"
+
             android:textAllCaps="false"
+
             android:paddingVertical="12dp"
+
             app:layout_constraintTop_toBottomOf="@id/rvWellness"
+
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintEnd_toEndOf="parent" />
 
+
+
         <Button
+
             android:id="@+id/btnManageTeam"
+
             android:layout_width="0dp"
+
             android:layout_height="wrap_content"
+
             android:layout_marginTop="12dp"
+
             android:background="@drawable/dt_button_pill_white_orange"
+
             android:text="Manage Team"
+
             android:textAllCaps="false"
+
             android:paddingVertical="12dp"
+
             app:layout_constraintTop_toBottomOf="@id/btnTeamForms"
+
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintEnd_toEndOf="parent" />
+
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </ScrollView>
