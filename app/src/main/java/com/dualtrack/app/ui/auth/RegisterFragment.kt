@@ -50,10 +50,22 @@ class RegisterFragment : Fragment() {
     }
 
     private fun registerUser() {
+        val firstName = b.etFirstNameRegister.text.toString().trim()
+        val lastName = b.etLastNameRegister.text.toString().trim()
         val email = b.etEmailRegister.text.toString().trim()
         val password = b.etPasswordRegister.text.toString().trim()
         val confirmPassword = b.etConfirmPasswordRegister.text.toString().trim()
         val role = b.spRoleRegister.selectedItem?.toString() ?: ""
+
+        if (firstName.isEmpty()) {
+            b.etFirstNameRegister.error = "First name is required"
+            return
+        }
+
+        if (lastName.isEmpty()) {
+            b.etLastNameRegister.error = "Last name is required"
+            return
+        }
 
         if (email.isEmpty()) {
             b.etEmailRegister.error = "Email is required"
@@ -87,7 +99,6 @@ class RegisterFragment : Fragment() {
             .addOnSuccessListener {
                 val user = auth.currentUser
 
-                // (Your existing pattern) store the chosen role in displayName
                 if (user != null && role.isNotBlank()) {
                     val updates = UserProfileChangeRequest.Builder()
                         .setDisplayName(role)
@@ -98,7 +109,9 @@ class RegisterFragment : Fragment() {
                 createUserDoc(
                     uid = user?.uid,
                     email = email,
-                    role = role
+                    role = role,
+                    firstName = firstName,
+                    lastName = lastName
                 ) { ok ->
                     if (!ok) return@createUserDoc
 
@@ -118,6 +131,8 @@ class RegisterFragment : Fragment() {
         uid: String?,
         email: String,
         role: String,
+        firstName: String,
+        lastName: String,
         onDone: (Boolean) -> Unit
     ) {
         if (uid.isNullOrBlank()) {
@@ -130,6 +145,8 @@ class RegisterFragment : Fragment() {
             "userId" to uid,
             "email" to email,
             "role" to role.lowercase(),
+            "firstName" to firstName,
+            "lastName" to lastName,
             "createdAt" to Timestamp.now(),
             "updatedAt" to Timestamp.now()
         )

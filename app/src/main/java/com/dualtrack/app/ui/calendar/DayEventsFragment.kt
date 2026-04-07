@@ -87,14 +87,37 @@ class DayEventsFragment : Fragment() {
 
                 val list = snap?.documents.orEmpty().mapNotNull { d ->
                     val title = d.getString("title") ?: return@mapNotNull null
-                    val details = d.getString("details") ?: ""
+                    val baseDetails = d.getString("details") ?: ""
                     val time = d.getString("time") ?: ""
                     val dm = d.getLong("dayMillis") ?: dayMillis
+                    val category = d.getString("category") ?: ""
+                    val status = d.getString("status") ?: ""
+                    val required = d.getBoolean("required") ?: false
+
+                    val extraDetails = buildString {
+                        if (category.isNotBlank()) append("Category: $category")
+                        if (status.isNotBlank()) {
+                            if (isNotBlank()) append(" • ")
+                            append("Status: $status")
+                        }
+                        if (required) {
+                            if (isNotBlank()) append(" • ")
+                            append("Required")
+                        }
+                    }
+
+                    val combinedDetails = buildString {
+                        if (baseDetails.isNotBlank()) append(baseDetails)
+                        if (extraDetails.isNotBlank()) {
+                            if (isNotBlank()) append(" • ")
+                            append(extraDetails)
+                        }
+                    }
 
                     CalendarEvent(
                         id = d.id,
                         title = title,
-                        details = details,
+                        details = combinedDetails,
                         time = time,
                         dayMillis = dm
                     )
@@ -132,3 +155,9 @@ class DayEventsFragment : Fragment() {
         _b = null
     }
 }
+
+
+
+
+
+

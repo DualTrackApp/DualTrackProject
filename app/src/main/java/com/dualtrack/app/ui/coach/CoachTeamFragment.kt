@@ -12,6 +12,18 @@ import com.dualtrack.app.databinding.FragmentCoachTeamBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
+data class RosterAthlete(
+    val uid: String,
+    val email: String,
+    val firstName: String,
+    val lastName: String
+) {
+    fun fullName(): String {
+        val full = "$firstName $lastName".trim()
+        return if (full.isBlank()) email else full
+    }
+}
+
 class CoachTeamFragment : Fragment() {
 
     private var _b: FragmentCoachTeamBinding? = null
@@ -20,13 +32,8 @@ class CoachTeamFragment : Fragment() {
     private val auth by lazy { FirebaseAuth.getInstance() }
     private val db by lazy { FirebaseFirestore.getInstance() }
 
-    private lateinit var adapter: CoachEmailAdapter
+    private lateinit var adapter: CoachPlayerAdapter
     private val rosterAthletes = mutableListOf<RosterAthlete>()
-
-    private data class RosterAthlete(
-        val uid: String,
-        val email: String
-    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -44,8 +51,7 @@ class CoachTeamFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        adapter = CoachEmailAdapter { email ->
-            val athlete = rosterAthletes.firstOrNull { it.email == email } ?: return@CoachEmailAdapter
+        adapter = CoachPlayerAdapter { athlete ->
             openPlayerCalendar(athlete)
         }
 
@@ -56,11 +62,11 @@ class CoachTeamFragment : Fragment() {
     }
 
     private fun loadPlayers() {
-        val uid = auth.currentUser?.uid ?: return
+        val coachUid = auth.currentUser?.uid ?: return
 
-        db.collection("users").document(uid).get()
-            .addOnSuccessListener { snap ->
-                val teamId = snap.getString("teamId") ?: return@addOnSuccessListener
+        db.collection("users").document(coachUid).get()
+            .addOnSuccessListener { coachSnap ->
+                val teamId = coachSnap.getString("teamId") ?: return@addOnSuccessListener
 
                 db.collection("teams").document(teamId)
                     .collection("roster")
@@ -70,7 +76,7 @@ class CoachTeamFragment : Fragment() {
 
                         if (ids.isEmpty()) {
                             rosterAthletes.clear()
-                            adapter.submit(listOf("No players"))
+                            adapter.submit(emptyList())
                             return@addOnSuccessListener
                         }
 
@@ -85,23 +91,29 @@ class CoachTeamFragment : Fragment() {
                                         ?: userDoc.getString("userEmail")
                                         ?: ""
 
+                                    val firstName = userDoc.getString("firstName") ?: ""
+                                    val lastName = userDoc.getString("lastName") ?: ""
+
                                     if (email.isNotBlank()) {
-                                        loaded.add(RosterAthlete(athleteUid, email))
+                                        loaded.add(
+                                            RosterAthlete(
+                                                uid = athleteUid,
+                                                email = email,
+                                                firstName = firstName,
+                                                lastName = lastName
+                                            )
+                                        )
                                     }
 
                                     remaining--
                                     if (remaining == 0) {
-                                        rosterAthletes.clear()
-                                        rosterAthletes.addAll(loaded.sortedBy { it.email })
-                                        adapter.submit(rosterAthletes.map { it.email })
+                                        showLoadedPlayers(loaded)
                                     }
                                 }
                                 .addOnFailureListener {
                                     remaining--
                                     if (remaining == 0) {
-                                        rosterAthletes.clear()
-                                        rosterAthletes.addAll(loaded.sortedBy { it.email })
-                                        adapter.submit(rosterAthletes.map { it.email })
+                                        showLoadedPlayers(loaded)
                                     }
                                 }
                         }
@@ -109,10 +121,19 @@ class CoachTeamFragment : Fragment() {
             }
     }
 
+    private fun showLoadedPlayers(loaded: List<RosterAthlete>) {
+        rosterAthletes.clear()
+        rosterAthletes.addAll(
+            loaded.sortedBy { it.fullName().lowercase() }
+        )
+        adapter.submit(rosterAthletes)
+    }
+
     private fun openPlayerCalendar(athlete: RosterAthlete) {
         val bundle = Bundle().apply {
             putString("playerUid", athlete.uid)
             putString("playerEmail", athlete.email)
+            putString("playerName", athlete.fullName())
         }
         findNavController().navigate(R.id.action_coachTeam_to_playerCalendar, bundle)
     }

@@ -28,6 +28,7 @@ class AthleteHomeFragment : Fragment() {
     private var eventsReg: ListenerRegistration? = null
     private var requestedFormsReg: ListenerRegistration? = null
     private var submissionsReg: ListenerRegistration? = null
+    private var calendarReg: ListenerRegistration? = null
 
     private var reviewedCount: Int = 0
     private var needsAttentionCount: Int = 0
@@ -54,6 +55,7 @@ class AthleteHomeFragment : Fragment() {
         listenForRequestedFormsRow()
         listenForSubmissionStatuses()
         listenForTeamContent()
+        listenForWeeklyCalendar()
 
         b.tvWelcomeTitle.setOnLongClickListener {
             findNavController().navigate(R.id.accountFragment)
@@ -68,9 +70,28 @@ class AthleteHomeFragment : Fragment() {
     }
 
     private fun setupWelcome() {
-        val email = auth.currentUser?.email
-        val name = email?.substringBefore("@").orEmpty().ifBlank { "Athlete" }
-        b.tvWelcomeTitle.text = "Welcome, $name!"
+        val uid = auth.currentUser?.uid
+        if (uid.isNullOrBlank()) {
+            b.tvWelcomeTitle.text = "Welcome, Athlete!"
+            return
+        }
+
+        db.collection("users").document(uid)
+            .get()
+            .addOnSuccessListener { snap ->
+                val firstName = snap.getString("firstName").orEmpty()
+                val lastName = snap.getString("lastName").orEmpty()
+                val fullName = "$firstName $lastName".trim()
+
+                val fallback = auth.currentUser?.email?.substringBefore("@").orEmpty().ifBlank { "Athlete" }
+                val displayName = if (fullName.isNotBlank()) fullName else fallback
+
+                b.tvWelcomeTitle.text = "Welcome, $displayName!"
+            }
+            .addOnFailureListener {
+                val fallback = auth.currentUser?.email?.substringBefore("@").orEmpty().ifBlank { "Athlete" }
+                b.tvWelcomeTitle.text = "Welcome, $fallback!"
+            }
     }
 
     private fun loadTeamStatus() {
@@ -159,7 +180,7 @@ class AthleteHomeFragment : Fragment() {
         b.rvCalendar.isNestedScrollingEnabled = false
         b.rvCalendar.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        b.rvCalendar.adapter = HomeCardAdapter(mockCalendar()) { card ->
+        b.rvCalendar.adapter = HomeCardAdapter(buildWeeklyCalendarCards(emptyList())) { card ->
             val dayMillis = dayMillisForLabel(card.title)
             val args = Bundle().apply { putLong("dayMillis", dayMillis) }
             findNavController().navigate(R.id.action_athleteHome_to_dayEvents, args)
@@ -494,6 +515,92 @@ class AthleteHomeFragment : Fragment() {
             }
     }
 
+    private fun listenForWeeklyCalendar() {
+        val uid = auth.currentUser?.uid ?: return
+
+        calendarReg?.remove()
+        calendarReg = db.collection("users")
+            .document(uid)
+            .collection("events")
+            .addSnapshotListener { snapshot, e ->
+                if (_b == null) return@addSnapshotListener
+
+                if (e != null) {
+                    b.rvCalendar.adapter = HomeCardAdapter(buildWeeklyCalendarCards(emptyList())) { card ->
+                        val dayMillis = dayMillisForLabel(card.title)
+                        val args = Bundle().apply { putLong("dayMillis", dayMillis) }
+                        findNavController().navigate(R.id.action_athleteHome_to_dayEvents, args)
+                    }
+                    return@addSnapshotListener
+                }
+
+                val docs = snapshot?.documents.orEmpty()
+
+                b.rvCalendar.adapter = HomeCardAdapter(buildWeeklyCalendarCards(docs)) { card ->
+                    val dayMillis = dayMillisForLabel(card.title)
+                    val args = Bundle().apply { putLong("dayMillis", dayMillis) }
+                    findNavController().navigate(R.id.action_athleteHome_to_dayEvents, args)
+                }
+            }
+    }
+
+    private fun buildWeeklyCalendarCards(
+        docs: List<com.google.firebase.firestore.DocumentSnapshot>
+    ): List<HomeCard> {
+        val startCal = Calendar.getInstance().apply {
+            firstDayOfWeek = Calendar.MONDAY
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            set(Calendar.DAY_OF_WEEK, Calendar.MONDAY)
+        }
+
+        val labels = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
+
+        return labels.mapIndexed { index, label ->
+            val dayCal = startCal.clone() as Calendar
+            dayCal.add(Calendar.DAY_OF_MONTH, index)
+            val currentDayMillis = dayCal.timeInMillis
+
+            val matching = docs.filter { doc ->
+                val storedDayMillis = doc.getLong("dayMillis")
+                storedDayMillis == currentDayMillis
+            }.sortedBy { it.getString("time").orEmpty() }
+
+            val subtitle = when {
+                matching.isEmpty() -> "Add events"
+                matching.size == 1 -> {
+                    val first = matching.first()
+                    val time = first.getString("time").orEmpty()
+                    val title = first.getString("title").orEmpty()
+                    buildString {
+                        if (time.isNotBlank()) append("$time - ")
+                        append(title)
+                    }
+                }
+                else -> {
+                    val first = matching.first()
+                    val time = first.getString("time").orEmpty()
+                    val title = first.getString("title").orEmpty()
+                    buildString {
+                        append("${matching.size} events")
+                        if (title.isNotBlank()) {
+                            append(" • ")
+                            if (time.isNotBlank()) append("$time - ")
+                            append(title)
+                        }
+                    }
+                }
+            }
+
+            HomeCard(
+                title = label,
+                subtitle = subtitle
+            )
+        }
+    }
+
     private fun dayMillisForLabel(label: String): Long {
         val cal = Calendar.getInstance()
         cal.firstDayOfWeek = Calendar.MONDAY
@@ -517,16 +624,6 @@ class AthleteHomeFragment : Fragment() {
         return cal.timeInMillis
     }
 
-    private fun mockCalendar(): List<HomeCard> = listOf(
-        HomeCard("Mon", "Add events"),
-        HomeCard("Tue", "Add events"),
-        HomeCard("Wed", "Add events"),
-        HomeCard("Thu", "Add events"),
-        HomeCard("Fri", "Add events"),
-        HomeCard("Sat", "Add events"),
-        HomeCard("Sun", "Add events")
-    )
-
     private fun mockWellness(): List<HomeCard> = listOf(
         HomeCard("Completion Chart", "This week"),
         HomeCard("Wellness Diaries", "Log today"),
@@ -539,13 +636,16 @@ class AthleteHomeFragment : Fragment() {
         eventsReg?.remove()
         requestedFormsReg?.remove()
         submissionsReg?.remove()
+        calendarReg?.remove()
         announcementsReg = null
         eventsReg = null
         requestedFormsReg = null
         submissionsReg = null
+        calendarReg = null
         _b = null
         super.onDestroyView()
     }
 }
+
 
 

@@ -5,12 +5,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentCoachPlayerCalendarBinding
 import com.dualtrack.app.ui.home.HomeCard
 import com.dualtrack.app.ui.home.HomeCardAdapter
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -26,11 +29,13 @@ class CoachPlayerCalendarFragment : Fragment() {
 
     private var playerUid: String = ""
     private var playerEmail: String = ""
+    private var playerName: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         playerUid = arguments?.getString("playerUid").orEmpty()
         playerEmail = arguments?.getString("playerEmail").orEmpty()
+        playerName = arguments?.getString("playerName").orEmpty()
     }
 
     override fun onCreateView(
@@ -49,13 +54,101 @@ class CoachPlayerCalendarFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        b.tvPlayerTitle.text =
-            if (playerEmail.isBlank()) "Player Weekly Calendar" else "$playerEmail Weekly Calendar"
-
         b.rvWeek.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
+        setInitialHeader()
+        loadPlayerProfile()
         loadWeek()
+    }
+
+    private fun setInitialHeader() {
+        b.tvPlayerTitle.text =
+            if (playerName.isBlank()) "Player Weekly Calendar" else "$playerName Weekly Calendar"
+
+        b.tvPlayerEmail.text = playerEmail
+
+        b.tvStatusValue.text = "Green - On track"
+        b.tvStatusReason.text = "No current concerns"
+    }
+
+    private fun loadPlayerProfile() {
+        if (playerUid.isBlank()) return
+
+        db.collection("users").document(playerUid)
+            .get()
+            .addOnSuccessListener { doc ->
+                val firstName = doc.getString("firstName").orEmpty()
+                val lastName = doc.getString("lastName").orEmpty()
+                val fullName = "$firstName $lastName".trim()
+
+                val displayName = when {
+                    fullName.isNotBlank() -> fullName
+                    playerName.isNotBlank() -> playerName
+                    playerEmail.isNotBlank() -> playerEmail
+                    else -> "Player"
+                }
+
+                val displayEmail = doc.getString("email").orEmpty().ifBlank { playerEmail }
+
+                b.tvPlayerTitle.text = "$displayName Weekly Calendar"
+                b.tvPlayerEmail.text = displayEmail
+
+                applyStatus(
+                    gpa = doc.getDouble("gpa"),
+                    missedPractices = doc.getLong("missedPractices")?.toInt() ?: 0,
+                    missedAssignments = doc.getLong("missedAssignments")?.toInt() ?: 0,
+                    attendanceIssues = doc.getLong("attendanceIssues")?.toInt() ?: 0
+                )
+            }
+            .addOnFailureListener {
+                setInitialHeader()
+            }
+    }
+
+    private fun applyStatus(
+        gpa: Double?,
+        missedPractices: Int,
+        missedAssignments: Int,
+        attendanceIssues: Int
+    ) {
+        val statusText: String
+        val reasonText: String
+        val colorRes: Int
+
+        when {
+            missedPractices >= 3 || missedAssignments >= 3 || attendanceIssues >= 2 || ((gpa ?: 0.0) > 0.0 && (gpa ?: 0.0) < 2.5) -> {
+                statusText = "Red - High Risk"
+                reasonText = when {
+                    missedPractices >= 3 -> "3 or more missed practices"
+                    missedAssignments >= 3 -> "3 or more missed assignments"
+                    attendanceIssues >= 2 -> "Multiple attendance issues"
+                    else -> "GPA below 2.5"
+                }
+                colorRes = android.R.color.holo_red_light
+            }
+
+            missedPractices >= 2 || missedAssignments >= 2 || attendanceIssues >= 1 || ((gpa ?: 0.0) > 0.0 && (gpa ?: 0.0) < 3.0) -> {
+                statusText = "Yellow - At Risk"
+                reasonText = when {
+                    missedPractices >= 2 -> "2 missed practices"
+                    missedAssignments >= 2 -> "2 missed assignments"
+                    attendanceIssues >= 1 -> "Attendance concern"
+                    else -> "GPA below 3.0"
+                }
+                colorRes = android.R.color.holo_orange_light
+            }
+
+            else -> {
+                statusText = "Green - Good Standing"
+                reasonText = "On track"
+                colorRes = android.R.color.holo_green_light
+            }
+        }
+
+        b.tvStatusValue.text = statusText
+        b.tvStatusReason.text = reasonText
+        b.tvStatusValue.setTextColor(ContextCompat.getColor(requireContext(), colorRes))
     }
 
     private fun loadWeek() {
@@ -81,7 +174,7 @@ class CoachPlayerCalendarFragment : Fragment() {
             }
     }
 
-    private fun renderWeek(docs: List<com.google.firebase.firestore.DocumentSnapshot>) {
+    private fun renderWeek(docs: List<DocumentSnapshot>) {
         val startCal = Calendar.getInstance().apply {
             firstDayOfWeek = Calendar.MONDAY
             set(Calendar.HOUR_OF_DAY, 0)

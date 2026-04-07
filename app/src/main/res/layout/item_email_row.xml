@@ -3,22 +3,39 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingVertical="10dp">
+    android:gravity="center_vertical"
+    android:padding="12dp">
 
-    <ImageView
-        android:id="@+id/imgIcon"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:src="@drawable/ic_item_placeholder" />
-
-    <TextView
-        android:id="@+id/tvEmail"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:layout_marginStart="12dp"
-        android:text="athlete@students.vsu.edu"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:textColor="@color/dt_navy" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Athlete Name"
+            android:textColor="@color/dt_black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvEmail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="athlete@students.vsu.edu"
+            android:textColor="@color/dt_black"
+            android:textSize="13sp" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/vStatusDot"
+        android:layout_width="14dp"
+        android:layout_height="14dp"
+        android:layout_marginStart="12dp" />
 </LinearLayout>
+
+

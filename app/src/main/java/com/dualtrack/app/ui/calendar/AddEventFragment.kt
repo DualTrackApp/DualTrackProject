@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
@@ -33,12 +34,35 @@ class AddEventFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setupSpinners()
+
         b.btnBack.setOnClickListener {
             findNavController().popBackStack()
         }
 
         b.btnSave.setOnClickListener {
             saveEvent()
+        }
+    }
+
+    private fun setupSpinners() {
+        val categories = listOf("Class", "Practice", "Game", "Study Hall", "Meeting", "Assignment", "Other")
+        val statuses = listOf("Upcoming", "Completed", "Missed")
+
+        b.spCategory.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            categories
+        ).also {
+            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        }
+
+        b.spStatus.adapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            statuses
+        ).also {
+            it.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         }
     }
 
@@ -51,6 +75,9 @@ class AddEventFragment : Fragment() {
         val title = b.etTitle.text?.toString()?.trim().orEmpty()
         val time = b.etTime.text?.toString()?.trim().orEmpty()
         val details = b.etDetails.text?.toString()?.trim().orEmpty()
+        val category = b.spCategory.selectedItem?.toString().orEmpty()
+        val required = b.cbRequired.isChecked
+        val status = b.spStatus.selectedItem?.toString().orEmpty()
 
         if (title.isBlank()) {
             AlertDialog.Builder(requireContext())
@@ -65,6 +92,9 @@ class AddEventFragment : Fragment() {
             "title" to title,
             "time" to time,
             "details" to details,
+            "category" to category,
+            "required" to required,
+            "status" to status,
             "dayMillis" to dayMillis,
             "createdAt" to FieldValue.serverTimestamp()
         )
@@ -100,3 +130,7 @@ class AddEventFragment : Fragment() {
         _b = null
     }
 }
+
+
+
+
