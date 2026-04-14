@@ -4,6 +4,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -13,8 +15,11 @@ import com.dualtrack.app.R
 import com.dualtrack.app.databinding.FragmentCoachPlayerCalendarBinding
 import com.dualtrack.app.ui.home.HomeCard
 import com.dualtrack.app.ui.home.HomeCardAdapter
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.Timestamp
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.SetOptions
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -57,6 +62,13 @@ class CoachPlayerCalendarFragment : Fragment() {
         b.rvWeek.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
 
+        b.tvStatusLabel.text = "Status (tap to update)"
+
+        b.layoutStatusCard.setOnClickListener {
+            if (playerUid.isBlank()) return@setOnClickListener
+            showStatusOptionsDialog()
+        }
+
         setInitialHeader()
         loadPlayerProfile()
         loadWeek()
@@ -67,9 +79,7 @@ class CoachPlayerCalendarFragment : Fragment() {
             if (playerName.isBlank()) "Player Weekly Calendar" else "$playerName Weekly Calendar"
 
         b.tvPlayerEmail.text = playerEmail
-
-        b.tvStatusValue.text = "Green - On track"
-        b.tvStatusReason.text = "No current concerns"
+        applyStatusToUi("Green", "On track", false)
     }
 
     private fun loadPlayerProfile() {
@@ -94,61 +104,182 @@ class CoachPlayerCalendarFragment : Fragment() {
                 b.tvPlayerTitle.text = "$displayName Weekly Calendar"
                 b.tvPlayerEmail.text = displayEmail
 
-                applyStatus(
+                val automaticStatus = calculateAutomaticStatus(
                     gpa = doc.getDouble("gpa"),
                     missedPractices = doc.getLong("missedPractices")?.toInt() ?: 0,
                     missedAssignments = doc.getLong("missedAssignments")?.toInt() ?: 0,
                     attendanceIssues = doc.getLong("attendanceIssues")?.toInt() ?: 0
                 )
+
+                val manualStatus = doc.getString("manualStatus").orEmpty()
+                val manualReason = doc.getString("manualStatusReason").orEmpty()
+
+                if (manualStatus.isNotBlank()) {
+                    applyStatusToUi(
+                        status = manualStatus,
+                        reason = manualReason.ifBlank { "Coach override" },
+                        isManual = true
+                    )
+                } else {
+                    applyStatusToUi(
+                        status = automaticStatus.label,
+                        reason = automaticStatus.reason,
+                        isManual = false
+                    )
+                }
             }
             .addOnFailureListener {
                 setInitialHeader()
             }
     }
 
-    private fun applyStatus(
+    private fun showStatusOptionsDialog() {
+        val options = arrayOf(
+            "Set Green",
+            "Set Yellow",
+            "Set Red",
+            "Clear manual override"
+        )
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Update Athlete Status")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> showReasonDialogForStatus("Green")
+                    1 -> showReasonDialogForStatus("Yellow")
+                    2 -> showReasonDialogForStatus("Red")
+                    3 -> clearManualStatus()
+                }
+            }
+            .show()
+    }
+
+    private fun showReasonDialogForStatus(status: String) {
+        val reasonInput = EditText(requireContext()).apply {
+            hint = "Reason"
+        }
+
+        val container = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL
+            val pad = (16 * resources.displayMetrics.density).toInt()
+            setPadding(pad, pad, pad, pad)
+            addView(reasonInput)
+        }
+
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Set $status Status")
+            .setView(container)
+            .setNegativeButton("Cancel", null)
+            .setPositiveButton("Save") { _, _ ->
+                val reason = reasonInput.text.toString().trim()
+                saveManualStatus(status, reason)
+            }
+            .show()
+    }
+
+    private fun saveManualStatus(status: String, reason: String) {
+        val data = hashMapOf<String, Any>(
+            "manualStatus" to status,
+            "manualStatusReason" to reason,
+            "manualStatusUpdatedAt" to Timestamp.now()
+        )
+
+        db.collection("users").document(playerUid)
+            .set(data, SetOptions.merge())
+            .addOnSuccessListener {
+                applyStatusToUi(
+                    status = status,
+                    reason = reason.ifBlank { "Coach override" },
+                    isManual = true
+                )
+                Toast.makeText(requireContext(), "Status updated", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Could not update status: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun clearManualStatus() {
+        val data = hashMapOf<String, Any>(
+            "manualStatus" to "",
+            "manualStatusReason" to "",
+            "manualStatusUpdatedAt" to Timestamp.now()
+        )
+
+        db.collection("users").document(playerUid)
+            .set(data, SetOptions.merge())
+            .addOnSuccessListener {
+                loadPlayerProfile()
+                Toast.makeText(requireContext(), "Manual override cleared", Toast.LENGTH_SHORT).show()
+            }
+            .addOnFailureListener { e ->
+                Toast.makeText(requireContext(), "Could not clear override: ${e.message}", Toast.LENGTH_LONG).show()
+            }
+    }
+
+    private fun applyStatusToUi(status: String, reason: String, isManual: Boolean) {
+        val statusText = if (isManual) {
+            "$status - Coach Set"
+        } else {
+            when (status) {
+                "Green" -> "Green - Good Standing"
+                "Yellow" -> "Yellow - At Risk"
+                "Red" -> "Red - High Risk"
+                else -> status
+            }
+        }
+
+        val colorRes = when (status) {
+            "Green" -> android.R.color.holo_green_light
+            "Yellow" -> android.R.color.holo_orange_light
+            "Red" -> android.R.color.holo_red_light
+            else -> android.R.color.darker_gray
+        }
+
+        b.tvStatusValue.text = statusText
+        b.tvStatusReason.text = reason
+        b.tvStatusValue.setTextColor(ContextCompat.getColor(requireContext(), colorRes))
+    }
+
+    private fun calculateAutomaticStatus(
         gpa: Double?,
         missedPractices: Int,
         missedAssignments: Int,
         attendanceIssues: Int
-    ) {
-        val statusText: String
-        val reasonText: String
-        val colorRes: Int
-
-        when {
-            missedPractices >= 3 || missedAssignments >= 3 || attendanceIssues >= 2 || ((gpa ?: 0.0) > 0.0 && (gpa ?: 0.0) < 2.5) -> {
-                statusText = "Red - High Risk"
-                reasonText = when {
-                    missedPractices >= 3 -> "3 or more missed practices"
-                    missedAssignments >= 3 -> "3 or more missed assignments"
-                    attendanceIssues >= 2 -> "Multiple attendance issues"
-                    else -> "GPA below 2.5"
-                }
-                colorRes = android.R.color.holo_red_light
+    ): StatusInfo {
+        return when {
+            missedPractices >= 3 ||
+                    missedAssignments >= 3 ||
+                    attendanceIssues >= 2 ||
+                    ((gpa ?: 0.0) > 0.0 && (gpa ?: 0.0) < 2.5) -> {
+                StatusInfo(
+                    "Red",
+                    when {
+                        missedPractices >= 3 -> "3 or more missed practices"
+                        missedAssignments >= 3 -> "3 or more missed assignments"
+                        attendanceIssues >= 2 -> "Multiple attendance issues"
+                        else -> "GPA below 2.5"
+                    }
+                )
             }
 
-            missedPractices >= 2 || missedAssignments >= 2 || attendanceIssues >= 1 || ((gpa ?: 0.0) > 0.0 && (gpa ?: 0.0) < 3.0) -> {
-                statusText = "Yellow - At Risk"
-                reasonText = when {
-                    missedPractices >= 2 -> "2 missed practices"
-                    missedAssignments >= 2 -> "2 missed assignments"
-                    attendanceIssues >= 1 -> "Attendance concern"
-                    else -> "GPA below 3.0"
-                }
-                colorRes = android.R.color.holo_orange_light
+            missedPractices >= 2 ||
+                    missedAssignments >= 2 ||
+                    attendanceIssues >= 1 ||
+                    ((gpa ?: 0.0) > 0.0 && (gpa ?: 0.0) < 3.0) -> {
+                StatusInfo(
+                    "Yellow",
+                    when {
+                        missedPractices >= 2 -> "2 missed practices"
+                        missedAssignments >= 2 -> "2 missed assignments"
+                        attendanceIssues >= 1 -> "Attendance concern"
+                        else -> "GPA below 3.0"
+                    }
+                )
             }
 
-            else -> {
-                statusText = "Green - Good Standing"
-                reasonText = "On track"
-                colorRes = android.R.color.holo_green_light
-            }
+            else -> StatusInfo("Green", "On track")
         }
-
-        b.tvStatusValue.text = statusText
-        b.tvStatusReason.text = reasonText
-        b.tvStatusValue.setTextColor(ContextCompat.getColor(requireContext(), colorRes))
     }
 
     private fun loadWeek() {
@@ -209,6 +340,7 @@ class CoachPlayerCalendarFragment : Fragment() {
                         if (details.isNotBlank()) append(" • $details")
                     }
                 }
+
                 else -> {
                     val first = matching.first()
                     val time = first.getString("time").orEmpty()
@@ -253,3 +385,8 @@ class CoachPlayerCalendarFragment : Fragment() {
         _b = null
     }
 }
+
+private data class StatusInfo(
+    val label: String,
+    val reason: String
+)

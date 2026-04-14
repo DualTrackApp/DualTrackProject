@@ -17,8 +17,9 @@ import com.dualtrack.app.databinding.FragmentCoachDashboardBinding
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.ListenerRegistration
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
 
 class CoachDashboardFragment : Fragment() {
@@ -46,7 +47,9 @@ class CoachDashboardFragment : Fragment() {
         val gpa: Double,
         val missedPractices: Int,
         val missedAssignments: Int,
-        val attendanceIssues: Int
+        val attendanceIssues: Int,
+        val manualStatus: String,
+        val manualStatusReason: String
     ) {
         fun fullName(): String {
             val full = "$firstName $lastName".trim()
@@ -166,14 +169,15 @@ class CoachDashboardFragment : Fragment() {
                     }
 
                     val athleteRows = athletes.map { athlete ->
-                        val status = calculateStatus(athlete)
+                        val status = calculateDisplayStatus(athlete)
                         "${athlete.fullName()} - ${status.label}||${athlete.email}"
                     }
 
                     val atRiskRows = athletes
-                        .map { athlete -> athlete to calculateStatus(athlete) }
+                        .map { athlete -> athlete to calculateDisplayStatus(athlete) }
                         .filter { (_, status) ->
-                            status.label == "Yellow" || status.label == "Red"
+                            status.label.equals("Yellow", ignoreCase = true) ||
+                                    status.label.equals("Red", ignoreCase = true)
                         }
                         .map { (athlete, status) ->
                             "${athlete.fullName()} - ${status.label}||${athlete.email}"
@@ -207,6 +211,8 @@ class CoachDashboardFragment : Fragment() {
                     val missedPractices = doc.getIntSafe("missedPractices")
                     val missedAssignments = doc.getIntSafe("missedAssignments")
                     val attendanceIssues = doc.getIntSafe("attendanceIssues")
+                    val manualStatus = doc.getString("manualStatus").orEmpty()
+                    val manualStatusReason = doc.getString("manualStatusReason").orEmpty()
 
                     if (email.isNotBlank()) {
                         athletes.add(
@@ -218,7 +224,9 @@ class CoachDashboardFragment : Fragment() {
                                 gpa = gpa,
                                 missedPractices = missedPractices,
                                 missedAssignments = missedAssignments,
-                                attendanceIssues = attendanceIssues
+                                attendanceIssues = attendanceIssues,
+                                manualStatus = manualStatus,
+                                manualStatusReason = manualStatusReason
                             )
                         )
                     }
@@ -233,7 +241,7 @@ class CoachDashboardFragment : Fragment() {
         }
     }
 
-    private fun calculateStatus(athlete: RosterAthlete): StatusInfo {
+    private fun calculateAutomaticStatus(athlete: RosterAthlete): StatusInfo {
         if ((athlete.gpa > 0.0 && athlete.gpa < 2.5) ||
             athlete.missedPractices >= 3 ||
             athlete.missedAssignments >= 3 ||
@@ -265,6 +273,17 @@ class CoachDashboardFragment : Fragment() {
         }
 
         return StatusInfo("Green", "On track")
+    }
+
+    private fun calculateDisplayStatus(athlete: RosterAthlete): StatusInfo {
+        return if (athlete.manualStatus.isNotBlank()) {
+            StatusInfo(
+                label = athlete.manualStatus.trim(),
+                reason = athlete.manualStatusReason.ifBlank { "Coach override" }
+            )
+        } else {
+            calculateAutomaticStatus(athlete)
+        }
     }
 
     private fun fetchRosterAthletes(onDone: (List<RosterAthlete>) -> Unit) {
@@ -747,7 +766,11 @@ class CoachDashboardFragment : Fragment() {
                     val details = detailsInput.text.toString().trim()
 
                     if (title.isBlank() || eventDate.isBlank() || eventTime.isBlank()) {
-                        Toast.makeText(requireContext(), "Title, date, and time are required.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Title, date, and time are required.",
+                            Toast.LENGTH_SHORT
+                        ).show()
                         return@setPositiveButton
                     }
 
@@ -787,7 +810,7 @@ class CoachDashboardFragment : Fragment() {
     }
 }
 
-private fun com.google.firebase.firestore.DocumentSnapshot.getDoubleSafe(field: String): Double {
+private fun DocumentSnapshot.getDoubleSafe(field: String): Double {
     val value = get(field)
     return when (value) {
         is Number -> value.toDouble()
@@ -796,7 +819,7 @@ private fun com.google.firebase.firestore.DocumentSnapshot.getDoubleSafe(field: 
     }
 }
 
-private fun com.google.firebase.firestore.DocumentSnapshot.getIntSafe(field: String): Int {
+private fun DocumentSnapshot.getIntSafe(field: String): Int {
     val value = get(field)
     return when (value) {
         is Number -> value.toInt()
