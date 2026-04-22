@@ -1,318 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-
     android:layout_width="match_parent"
-
     android:layout_height="match_parent"
-
     android:background="@color/dt_navy"
-
     android:fillViewport="true">
 
-
-
     <LinearLayout
-
         android:layout_width="match_parent"
-
         android:layout_height="wrap_content"
-
         android:orientation="vertical"
-
         android:padding="24dp">
 
-
-
-        <ImageButton
-
+        <Button
             android:id="@+id/btnBack"
-
-            android:layout_width="40dp"
-
-            android:layout_height="40dp"
-
-            android:background="@android:color/transparent"
-
-            android:contentDescription="Back"
-
-            android:padding="8dp"
-
-            android:src="@android:drawable/ic_media_previous"
-
-            android:tint="@color/dt_white" />
-
-
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:background="@drawable/dt_button_pill_white_orange"
+            android:text="Back" />
 
         <TextView
-
             android:layout_width="wrap_content"
-
             android:layout_height="wrap_content"
-
-            android:layout_marginTop="12dp"
-
-            android:text="Wellness Check"
-
+            android:layout_marginTop="16dp"
+            android:text="Wellness Check-In"
             android:textColor="@color/dt_white"
-
             android:textSize="24sp"
-
             android:textStyle="bold" />
 
-
-
         <TextView
-
             android:layout_width="match_parent"
-
             android:layout_height="wrap_content"
-
             android:layout_marginTop="8dp"
-
-            android:text="Instruction: Complete this wellness check honestly so your coach can monitor your recovery, energy, and overall readiness."
-
+            android:text="Complete this check-in honestly so your coach can better understand your current condition, energy, stress, and readiness."
             android:textColor="@color/dt_white_60"
-
             android:textSize="14sp" />
 
-
-
         <TextView
-
             android:layout_width="wrap_content"
-
             android:layout_height="wrap_content"
-
             android:layout_marginTop="20dp"
-
-            android:text="Daily Wellness"
-
+            android:text="Mood *"
             android:textColor="@color/dt_white"
-
-            android:textSize="18sp"
-
+            android:textSize="16sp"
             android:textStyle="bold" />
 
-
-
-        <EditText
-
-            android:id="@+id/etMood"
-
-            android:layout_width="match_parent"
-
-            android:layout_height="wrap_content"
-
-            android:layout_marginTop="12dp"
-
-            android:background="@drawable/dt_input_outline"
-
-            android:hint="Mood (1-10) *"
-
-            android:inputType="number"
-
-            android:padding="12dp"
-
-            android:textColor="@color/dt_white"
-
-            android:textColorHint="@color/dt_white_60" />
-
-
-
-        <EditText
-
-            android:id="@+id/etEnergy"
-
-            android:layout_width="match_parent"
-
-            android:layout_height="wrap_content"
-
-            android:layout_marginTop="12dp"
-
-            android:background="@drawable/dt_input_outline"
-
-            android:hint="Energy level (1-10) *"
-
-            android:inputType="number"
-
-            android:padding="12dp"
-
-            android:textColor="@color/dt_white"
-
-            android:textColorHint="@color/dt_white_60" />
-
-
-
-        <EditText
-
-            android:id="@+id/etSleepHours"
-
-            android:layout_width="match_parent"
-
-            android:layout_height="wrap_content"
-
-            android:layout_marginTop="12dp"
-
-            android:background="@drawable/dt_input_outline"
-
-            android:hint="Hours of sleep *"
-
-            android:inputType="numberDecimal"
-
-            android:padding="12dp"
-
-            android:textColor="@color/dt_white"
-
-            android:textColorHint="@color/dt_white_60" />
-
-
-
         <Spinner
-
-            android:id="@+id/spSleepQuality"
-
+            android:id="@+id/spMood"
             android:layout_width="match_parent"
-
             android:layout_height="wrap_content"
-
-            android:layout_marginTop="12dp"
-
+            android:layout_marginTop="8dp"
             android:background="@drawable/bg_spinner_white" />
 
-
-
-        <EditText
-
-            android:id="@+id/etSoreness"
-
-            android:layout_width="match_parent"
-
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-            android:layout_marginTop="12dp"
-
-            android:background="@drawable/dt_input_outline"
-
-            android:hint="Soreness level (1-10)"
-
-            android:inputType="number"
-
-            android:padding="12dp"
-
+            android:layout_marginTop="16dp"
+            android:text="Energy Level *"
             android:textColor="@color/dt_white"
-
-            android:textColorHint="@color/dt_white_60" />
-
-
-
-        <EditText
-
-            android:id="@+id/etHydration"
-
-            android:layout_width="match_parent"
-
-            android:layout_height="wrap_content"
-
-            android:layout_marginTop="12dp"
-
-            android:background="@drawable/dt_input_outline"
-
-            android:hint="Hydration status"
-
-            android:inputType="textCapSentences"
-
-            android:padding="12dp"
-
-            android:textColor="@color/dt_white"
-
-            android:textColorHint="@color/dt_white_60" />
-
-
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <Spinner
+            android:id="@+id/spEnergyLevel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_spinner_white" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Stress Level *"
+            android:textColor="@color/dt_white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <Spinner
             android:id="@+id/spStressLevel"
-
             android:layout_width="match_parent"
-
             android:layout_height="wrap_content"
-
-            android:layout_marginTop="12dp"
-
+            android:layout_marginTop="8dp"
             android:background="@drawable/bg_spinner_white" />
 
-
-
-        <EditText
-
-            android:id="@+id/etAppetite"
-
-            android:layout_width="match_parent"
-
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
-            android:layout_marginTop="12dp"
-
-            android:background="@drawable/dt_input_outline"
-
-            android:hint="Appetite status"
-
-            android:inputType="textCapSentences"
-
-            android:padding="12dp"
-
+            android:layout_marginTop="16dp"
+            android:text="Sleep Hours *"
             android:textColor="@color/dt_white"
-
-            android:textColorHint="@color/dt_white_60" />
-
-
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
         <EditText
-
-            android:id="@+id/etConcerns"
-
+            android:id="@+id/etSleepHours"
             android:layout_width="match_parent"
-
-            android:layout_height="120dp"
-
-            android:layout_marginTop="12dp"
-
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
             android:background="@drawable/dt_input_outline"
-
-            android:gravity="top"
-
-            android:hint="Additional concerns or notes"
-
-            android:inputType="textCapSentences|textMultiLine"
-
+            android:hint="Enter hours slept (ex: 7.5)"
+            android:inputType="numberDecimal"
             android:padding="12dp"
-
             android:textColor="@color/dt_white"
-
             android:textColorHint="@color/dt_white_60" />
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Body Feeling / Soreness *"
+            android:textColor="@color/dt_white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
+        <Spinner
+            android:id="@+id/spSorenessLevel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_spinner_white" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Additional Notes"
+            android:textColor="@color/dt_white"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <EditText
+            android:id="@+id/etNotes"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/dt_input_outline"
+            android:gravity="top"
+            android:hint="Optional notes for your coach"
+            android:inputType="textCapSentences|textMultiLine"
+            android:padding="12dp"
+            android:textColor="@color/dt_white"
+            android:textColorHint="@color/dt_white_60" />
 
         <Button
-
             android:id="@+id/btnSubmitWellness"
-
             android:layout_width="match_parent"
-
-            android:layout_height="wrap_content"
-
+            android:layout_height="56dp"
             android:layout_marginTop="28dp"
-
             android:background="@drawable/dt_button_pill_white_orange"
-
             android:text="Submit Wellness Check"
-
             android:textAllCaps="false" />
-
-
 
     </LinearLayout>
 
 </ScrollView>
-

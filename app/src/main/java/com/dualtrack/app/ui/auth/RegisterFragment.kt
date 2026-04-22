@@ -148,7 +148,19 @@ class RegisterFragment : Fragment() {
             "firstName" to firstName,
             "lastName" to lastName,
             "createdAt" to Timestamp.now(),
-            "updatedAt" to Timestamp.now()
+            "updatedAt" to Timestamp.now(),
+
+            "teamId" to "",
+            "teamName" to "",
+
+            "gpa" to 0.0,
+            "missedPractices" to 0,
+            "missedAssignments" to 0,
+            "attendanceIssues" to 0,
+
+            "manualStatus" to "",
+            "manualStatusReason" to "",
+            "manualStatusUpdatedAt" to Timestamp.now()
         )
 
         db.collection("users").document(uid)

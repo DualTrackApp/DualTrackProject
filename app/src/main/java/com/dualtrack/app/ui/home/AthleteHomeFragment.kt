@@ -311,7 +311,11 @@ class AthleteHomeFragment : Fragment() {
             card.title == "Injury Report" -> findNavController().navigate(R.id.injuryFormFragment)
             card.title == "My Submissions" -> findNavController().navigate(R.id.athleteSubmissionsFragment)
 
-            card.title == "Completion Chart" || card.title == "Wellness Diaries" || card.title == "Eligibility Flags" -> {
+            card.title == "Wellness Check-In" -> {
+                findNavController().navigate(R.id.wellnessFormFragment)
+            }
+
+            card.title == "Completion Chart" || card.title == "Eligibility Flags" -> {
                 val bundle = Bundle().apply { putString("cardTitle", card.title) }
                 findNavController().navigate(R.id.progressWellnessFormFragment, bundle)
             }
@@ -625,9 +629,9 @@ class AthleteHomeFragment : Fragment() {
     }
 
     private fun mockWellness(): List<HomeCard> = listOf(
+        HomeCard("Wellness Check-In", "Submit today"),
         HomeCard("Completion Chart", "This week"),
-        HomeCard("Wellness Diaries", "Log today"),
-        HomeCard("Eligibility Flags", "All clear"),
+        HomeCard("Eligibility Flags", "Report concern"),
         HomeCard("Injury Overview", "No active injuries")
     )
 
@@ -646,6 +650,3 @@ class AthleteHomeFragment : Fragment() {
         super.onDestroyView()
     }
 }
-
-
-
