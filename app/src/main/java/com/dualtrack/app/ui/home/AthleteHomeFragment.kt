@@ -163,7 +163,13 @@ class AthleteHomeFragment : Fragment() {
         b.rvRequestedForms.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         b.rvRequestedForms.adapter = HomeCardAdapter(
-            listOf(HomeCard("No requested forms", "Coach-assigned forms will appear here"))
+            listOf(
+                HomeCard(
+                    title = "No requested forms",
+                    subtitle = "Coach-assigned forms will appear here",
+                    iconResId = android.R.drawable.ic_menu_agenda
+                )
+            )
         ) { card ->
             handleCardClick(card)
         }
@@ -172,7 +178,13 @@ class AthleteHomeFragment : Fragment() {
         b.rvTasks.layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
         b.rvTasks.adapter = HomeCardAdapter(
-            listOf(HomeCard("No events yet", "Upcoming team events will appear here"))
+            listOf(
+                HomeCard(
+                    title = "No events yet",
+                    subtitle = "Upcoming team events will appear here",
+                    imageResId = R.drawable.banner_events
+                )
+            )
         ) { card ->
             handleCardClick(card)
         }
@@ -186,12 +198,18 @@ class AthleteHomeFragment : Fragment() {
             findNavController().navigate(R.id.action_athleteHome_to_dayEvents, args)
         }
 
-        setupHorizontalList(b.rvWellness, mockWellness())
+        setupHorizontalList(b.rvWellness, buildProgressWellnessCards())
     }
 
     private fun renderAnnouncementsRow() {
         val items = if (announcementCards.isEmpty()) {
-            listOf(HomeCard("Announcements", "No announcements yet"))
+            listOf(
+                HomeCard(
+                    title = "Announcements",
+                    subtitle = "No announcements yet",
+                    iconResId = android.R.drawable.ic_dialog_info
+                )
+            )
         } else {
             announcementCards
         }
@@ -210,7 +228,13 @@ class AthleteHomeFragment : Fragment() {
 
     private fun renderEventsRow() {
         val items = if (eventCards.isEmpty()) {
-            listOf(HomeCard("No events yet", "Upcoming team events will appear here"))
+            listOf(
+                HomeCard(
+                    title = "No events yet",
+                    subtitle = "Upcoming team events will appear here",
+                    imageResId = R.drawable.banner_events
+                )
+            )
         } else {
             eventCards
         }
@@ -232,11 +256,31 @@ class AthleteHomeFragment : Fragment() {
         }
 
         return listOf(
-            HomeCard("Absence Form", "Submit"),
-            HomeCard("Injury Report", "Submit"),
-            HomeCard("My Submissions", mySubmissionsSubtitle)
+            HomeCard(
+                title = "Absence Form",
+                subtitle = "Submit",
+                iconResId = android.R.drawable.ic_menu_edit
+            ),
+            HomeCard(
+                title = "My Submissions",
+                subtitle = mySubmissionsSubtitle,
+                iconResId = android.R.drawable.ic_menu_recent_history
+            )
         )
     }
+
+    private fun buildProgressWellnessCards(): List<HomeCard> = listOf(
+        HomeCard(
+            title = "Wellness Check-In",
+            subtitle = "Submit today",
+            imageResId = R.drawable.banner_recovery
+        ),
+        HomeCard(
+            title = "Injury Report",
+            subtitle = "Report an injury or concern",
+            imageResId = R.drawable.banner_recovery
+        )
+    )
 
     private fun listenForSubmissionStatuses() {
         val uid = auth.currentUser?.uid ?: return
@@ -307,23 +351,35 @@ class AthleteHomeFragment : Fragment() {
                 }
             }
 
-            card.title == "Absence Form" -> findNavController().navigate(R.id.absenceFormFragment)
-            card.title == "Injury Report" -> findNavController().navigate(R.id.injuryFormFragment)
-            card.title == "My Submissions" -> findNavController().navigate(R.id.athleteSubmissionsFragment)
+            card.title == "Absence Form" -> {
+                findNavController().navigate(R.id.absenceFormFragment)
+            }
+
+            card.title == "Injury Report" -> {
+                findNavController().navigate(R.id.injuryFormFragment)
+            }
+
+            card.title == "My Submissions" -> {
+                findNavController().navigate(R.id.athleteSubmissionsFragment)
+            }
 
             card.title == "Wellness Check-In" -> {
                 findNavController().navigate(R.id.wellnessFormFragment)
             }
 
-            card.title == "Completion Chart" || card.title == "Eligibility Flags" -> {
-                val bundle = Bundle().apply { putString("cardTitle", card.title) }
-                findNavController().navigate(R.id.progressWellnessFormFragment, bundle)
+            card.title == "Announcements" -> {
+                val args = Bundle().apply { putString("mode", "announcements") }
+                findNavController().navigate(R.id.teamUpdatesFragment, args)
             }
 
-            card.title == "Injury Overview" -> findNavController().navigate(R.id.injuryFormFragment)
+            card.title == "Events" || card.title == "No events yet" -> {
+                val args = Bundle().apply { putString("mode", "events") }
+                findNavController().navigate(R.id.teamUpdatesFragment, args)
+            }
 
-            card.title == "Announcements" || card.title == "Events" || card.title == "No events yet" -> {
-                findNavController().navigate(R.id.teamUpdatesFragment)
+            card.imageResId == R.drawable.banner_events -> {
+                val args = Bundle().apply { putString("mode", "events") }
+                findNavController().navigate(R.id.teamUpdatesFragment, args)
             }
 
             card.title == "No requested forms" -> {
@@ -373,9 +429,17 @@ class AthleteHomeFragment : Fragment() {
                         else -> "Requested by coach"
                     }
 
+                    val iconRes = when (formType) {
+                        "academic" -> android.R.drawable.ic_menu_edit
+                        "wellness" -> android.R.drawable.ic_menu_info_details
+                        "atRisk" -> android.R.drawable.ic_dialog_alert
+                        else -> android.R.drawable.ic_menu_agenda
+                    }
+
                     HomeCard(
                         title = title,
                         subtitle = subtitle,
+                        iconResId = iconRes,
                         docId = doc.id,
                         formType = formType
                     )
@@ -387,7 +451,13 @@ class AthleteHomeFragment : Fragment() {
 
     private fun renderRequestedFormsRow(items: List<HomeCard>) {
         val finalItems = if (items.isEmpty()) {
-            listOf(HomeCard("No requested forms", "Coach-assigned forms will appear here"))
+            listOf(
+                HomeCard(
+                    title = "No requested forms",
+                    subtitle = "Coach-assigned forms will appear here",
+                    iconResId = android.R.drawable.ic_menu_agenda
+                )
+            )
         } else {
             items
         }
@@ -453,7 +523,8 @@ class AthleteHomeFragment : Fragment() {
                         announcementCards = listOf(
                             HomeCard(
                                 title = "Announcements",
-                                subtitle = announcementSubtitle
+                                subtitle = announcementSubtitle,
+                                iconResId = android.R.drawable.ic_dialog_info
                             )
                         )
 
@@ -496,7 +567,8 @@ class AthleteHomeFragment : Fragment() {
 
                             HomeCard(
                                 title = title,
-                                subtitle = subtitle
+                                subtitle = subtitle,
+                                imageResId = R.drawable.banner_events
                             )
                         }
 
@@ -600,7 +672,8 @@ class AthleteHomeFragment : Fragment() {
 
             HomeCard(
                 title = label,
-                subtitle = subtitle
+                subtitle = subtitle,
+                iconResId = android.R.drawable.ic_menu_my_calendar
             )
         }
     }
@@ -627,13 +700,6 @@ class AthleteHomeFragment : Fragment() {
         cal.set(Calendar.DAY_OF_WEEK, dow)
         return cal.timeInMillis
     }
-
-    private fun mockWellness(): List<HomeCard> = listOf(
-        HomeCard("Wellness Check-In", "Submit today"),
-        HomeCard("Completion Chart", "This week"),
-        HomeCard("Eligibility Flags", "Report concern"),
-        HomeCard("Injury Overview", "No active injuries")
-    )
 
     override fun onDestroyView() {
         announcementsReg?.remove()
