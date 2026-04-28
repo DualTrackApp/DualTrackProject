@@ -47,12 +47,31 @@ class CoachTeamFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val selectedPlayerUid = arguments?.getString("selectedPlayerUid").orEmpty()
+        val selectedPlayerEmail = arguments?.getString("selectedPlayerEmail").orEmpty()
+        val selectedPlayerName = arguments?.getString("selectedPlayerName").orEmpty()
+        val selectedFocus = arguments?.getString("selectedFocus").orEmpty()
+
+        if (selectedPlayerUid.isNotBlank()) {
+            openPlayerCalendar(
+                athlete = RosterAthlete(
+                    uid = selectedPlayerUid,
+                    email = selectedPlayerEmail,
+                    firstName = "",
+                    lastName = ""
+                ),
+                overrideName = selectedPlayerName,
+                focus = selectedFocus.ifBlank { "overview" }
+            )
+            return
+        }
+
         b.btnBack.setOnClickListener {
             findNavController().navigateUp()
         }
 
         adapter = CoachPlayerAdapter { athlete ->
-            openPlayerCalendar(athlete)
+            openPlayerCalendar(athlete, athlete.fullName(), "overview")
         }
 
         b.rvPlayers.layoutManager = LinearLayoutManager(requireContext())
@@ -129,11 +148,16 @@ class CoachTeamFragment : Fragment() {
         adapter.submit(rosterAthletes)
     }
 
-    private fun openPlayerCalendar(athlete: RosterAthlete) {
+    private fun openPlayerCalendar(
+        athlete: RosterAthlete,
+        overrideName: String = athlete.fullName(),
+        focus: String = "overview"
+    ) {
         val bundle = Bundle().apply {
             putString("playerUid", athlete.uid)
             putString("playerEmail", athlete.email)
-            putString("playerName", athlete.fullName())
+            putString("playerName", overrideName)
+            putString("selectedFocus", focus)
         }
         findNavController().navigate(R.id.action_coachTeam_to_playerCalendar, bundle)
     }
@@ -143,3 +167,4 @@ class CoachTeamFragment : Fragment() {
         _b = null
     }
 }
+

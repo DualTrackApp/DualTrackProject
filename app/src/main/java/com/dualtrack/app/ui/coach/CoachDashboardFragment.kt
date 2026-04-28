@@ -21,6 +21,9 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.SetOptions
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class CoachDashboardFragment : Fragment() {
 
@@ -34,10 +37,15 @@ class CoachDashboardFragment : Fragment() {
     private var cachedTeamName: String? = null
 
     private var rosterListener: ListenerRegistration? = null
+    private var formsListener: ListenerRegistration? = null
 
     private lateinit var athletesAdapter: CoachEmailAdapter
     private lateinit var flagsAdapter: CoachEmailAdapter
     private lateinit var wellnessAdapter: CoachEmailAdapter
+
+    private var currentAthletes: List<RosterAthlete> = emptyList()
+    private var latestWellnessByUser: Map<String, WellnessInfo> = emptyMap()
+    private var latestAtRiskByUser: Map<String, AtRiskInfo> = emptyMap()
 
     private data class RosterAthlete(
         val uid: String,
@@ -60,6 +68,18 @@ class CoachDashboardFragment : Fragment() {
     private data class StatusInfo(
         val label: String,
         val reason: String
+    )
+
+    private data class WellnessInfo(
+        val label: String,
+        val summary: String,
+        val submittedAt: Timestamp?
+    )
+
+    private data class AtRiskInfo(
+        val impact: String,
+        val summary: String,
+        val submittedAt: Timestamp?
     )
 
     override fun onCreateView(
@@ -98,14 +118,22 @@ class CoachDashboardFragment : Fragment() {
         }
 
         refreshCoachTeamCache {
-            startRosterListener()
+            startDashboardListeners()
         }
     }
 
     private fun setupLists() {
-        athletesAdapter = CoachEmailAdapter()
-        flagsAdapter = CoachEmailAdapter()
-        wellnessAdapter = CoachEmailAdapter()
+        athletesAdapter = CoachEmailAdapter { raw ->
+            openCoachRow(raw, "overview")
+        }
+
+        flagsAdapter = CoachEmailAdapter { raw ->
+            openCoachRow(raw, "risk")
+        }
+
+        wellnessAdapter = CoachEmailAdapter { raw ->
+            openCoachRow(raw, "wellness")
+        }
 
         b.rvAthletes.layoutManager = LinearLayoutManager(requireContext())
         b.rvFlags.layoutManager = LinearLayoutManager(requireContext())
@@ -114,6 +142,43 @@ class CoachDashboardFragment : Fragment() {
         b.rvAthletes.adapter = athletesAdapter
         b.rvFlags.adapter = flagsAdapter
         b.rvWellness.adapter = wellnessAdapter
+    }
+
+    private fun openCoachRow(raw: String, defaultFocus: String) {
+        val parts = raw.split("||")
+        val topRaw = parts.getOrNull(0).orEmpty().trim()
+
+        if (topRaw.startsWith("No ", ignoreCase = true)) return
+
+        val secondPart = parts.getOrNull(1).orEmpty()
+        val playerUid = parts.getOrNull(2).orEmpty()
+        val focus = parts.getOrNull(3).orEmpty().ifBlank { defaultFocus }
+
+        val playerName = topRaw
+            .removeSuffix(" - Green")
+            .removeSuffix(" - Yellow")
+            .removeSuffix(" - Red")
+            .removeSuffix(" - Good")
+            .removeSuffix(" - Watch")
+            .removeSuffix(" - Concern")
+            .trim()
+
+        val playerEmail = when (focus) {
+            "overview" -> secondPart
+            else -> currentAthletes.firstOrNull { it.uid == playerUid }?.email.orEmpty()
+        }
+
+        val bundle = Bundle().apply {
+            putString("playerUid", playerUid)
+            putString("playerEmail", playerEmail)
+            putString("playerName", playerName)
+        }
+
+        when (focus) {
+            "wellness" -> findNavController().navigate(R.id.action_coachHome_to_wellnessHistory, bundle)
+            "risk" -> findNavController().navigate(R.id.action_coachHome_to_atRiskHistory, bundle)
+            else -> findNavController().navigate(R.id.action_coachHome_to_coachTeam, bundle)
+        }
     }
 
     private fun refreshCoachTeamCache(onDone: (() -> Unit)? = null) {
@@ -134,15 +199,16 @@ class CoachDashboardFragment : Fragment() {
             }
     }
 
-    private fun startRosterListener() {
+    private fun startDashboardListeners() {
         rosterListener?.remove()
-        val teamId = cachedTeamId
+        formsListener?.remove()
 
+        val teamId = cachedTeamId
         if (teamId.isNullOrBlank()) {
-            val empty = listOf("No athletes assigned||")
-            athletesAdapter.submit(empty)
-            flagsAdapter.submit(listOf("No at-risk athletes||"))
-            wellnessAdapter.submit(empty)
+            currentAthletes = emptyList()
+            latestWellnessByUser = emptyMap()
+            latestAtRiskByUser = emptyMap()
+            renderDashboardLists()
             return
         }
 
@@ -152,48 +218,208 @@ class CoachDashboardFragment : Fragment() {
                 val ids = snap?.documents?.map { it.id }?.distinct().orEmpty()
 
                 if (ids.isEmpty()) {
-                    val empty = listOf("No athletes assigned||")
-                    athletesAdapter.submit(empty)
-                    flagsAdapter.submit(listOf("No at-risk athletes||"))
-                    wellnessAdapter.submit(empty)
+                    currentAthletes = emptyList()
+                    renderDashboardLists()
                     return@addSnapshotListener
                 }
 
                 fetchRosterAthletesByIds(ids) { athletes ->
-                    if (athletes.isEmpty()) {
-                        val empty = listOf("No athletes assigned||")
-                        athletesAdapter.submit(empty)
-                        flagsAdapter.submit(listOf("No at-risk athletes||"))
-                        wellnessAdapter.submit(empty)
-                        return@fetchRosterAthletesByIds
-                    }
-
-                    val athleteRows = athletes.map { athlete ->
-                        val status = calculateDisplayStatus(athlete)
-                        "${athlete.fullName()} - ${status.label}||${athlete.email}"
-                    }
-
-                    val atRiskRows = athletes
-                        .map { athlete -> athlete to calculateDisplayStatus(athlete) }
-                        .filter { (_, status) ->
-                            status.label.equals("Yellow", ignoreCase = true) ||
-                                    status.label.equals("Red", ignoreCase = true)
-                        }
-                        .map { (athlete, status) ->
-                            "${athlete.fullName()} - ${status.label}||${athlete.email}"
-                        }
-
-                    val wellnessRows = athletes.map { athlete ->
-                        "${athlete.fullName()}||${athlete.email}"
-                    }
-
-                    athletesAdapter.submit(athleteRows)
-                    flagsAdapter.submit(
-                        if (atRiskRows.isEmpty()) listOf("No at-risk athletes||") else atRiskRows
-                    )
-                    wellnessAdapter.submit(wellnessRows)
+                    currentAthletes = athletes
+                    renderDashboardLists()
                 }
             }
+
+        formsListener = db.collection("forms")
+            .whereEqualTo("teamId", teamId)
+            .addSnapshotListener { snapshot, _ ->
+                val docs = snapshot?.documents.orEmpty()
+
+                latestWellnessByUser = docs
+                    .filter {
+                        it.getString("formType") == "wellness" &&
+                                it.getString("status") != "requested"
+                    }
+                    .groupBy { it.getString("userId").orEmpty() }
+                    .mapValues { (_, userDocs) ->
+                        val latest = userDocs.maxByOrNull {
+                            it.getTimestamp("submittedAt")?.toDate()?.time
+                                ?: it.getTimestamp("createdAt")?.toDate()?.time
+                                ?: 0L
+                        }!!
+                        buildWellnessInfo(latest)
+                    }
+
+                latestAtRiskByUser = docs
+                    .filter {
+                        it.getString("formType") == "atRisk" &&
+                                it.getString("status") != "requested"
+                    }
+                    .groupBy { it.getString("userId").orEmpty() }
+                    .mapValues { (_, userDocs) ->
+                        val latest = userDocs.maxByOrNull {
+                            it.getTimestamp("submittedAt")?.toDate()?.time
+                                ?: it.getTimestamp("createdAt")?.toDate()?.time
+                                ?: 0L
+                        }!!
+                        buildAtRiskInfo(latest)
+                    }
+
+                renderDashboardLists()
+            }
+    }
+
+    private fun renderDashboardLists() {
+        if (currentAthletes.isEmpty()) {
+            athletesAdapter.submit(listOf("No athletes assigned||"))
+            flagsAdapter.submit(listOf("No at-risk athletes||"))
+            wellnessAdapter.submit(listOf("No wellness check-ins yet||"))
+            return
+        }
+
+        val athleteRows = currentAthletes.map { athlete ->
+            val status = calculateDisplayStatus(athlete)
+            "${athlete.fullName()} - ${status.label}||${athlete.email}||${athlete.uid}||overview"
+        }
+
+        val atRiskRows = currentAthletes
+            .map { athlete -> athlete to calculateDisplayStatus(athlete) }
+            .filter { (athlete, status) ->
+                status.label.equals("Yellow", ignoreCase = true) ||
+                        status.label.equals("Red", ignoreCase = true) ||
+                        latestAtRiskByUser.containsKey(athlete.uid)
+            }
+            .map { (athlete, status) ->
+                val latestRisk = latestAtRiskByUser[athlete.uid]
+                val detailLine = latestRisk?.let {
+                    "${formatRelativeTime(it.submittedAt)} • ${it.summary}"
+                } ?: status.reason
+
+                "${athlete.fullName()} - ${status.label}||$detailLine||${athlete.uid}||risk"
+            }
+
+        val wellnessRows = currentAthletes
+            .filter { latestWellnessByUser.containsKey(it.uid) }
+            .sortedByDescending { athlete ->
+                latestWellnessByUser[athlete.uid]?.submittedAt?.toDate()?.time ?: 0L
+            }
+            .map { athlete ->
+                val latest = latestWellnessByUser[athlete.uid]!!
+                val top = "${athlete.fullName()} - ${latest.label}"
+                val bottom = "${formatRelativeTime(latest.submittedAt)} • ${latest.summary}"
+                "$top||$bottom||${athlete.uid}||wellness"
+            }
+
+        athletesAdapter.submit(athleteRows)
+        flagsAdapter.submit(
+            if (atRiskRows.isEmpty()) listOf("No at-risk athletes||") else atRiskRows
+        )
+        wellnessAdapter.submit(
+            if (wellnessRows.isEmpty()) listOf("No wellness check-ins yet||") else wellnessRows
+        )
+    }
+
+    private fun buildWellnessInfo(doc: DocumentSnapshot): WellnessInfo {
+        val mood = doc.getString("mood").orEmpty()
+        val energy = doc.getString("energyLevel").orEmpty()
+        val stress = doc.getString("stressLevel").orEmpty()
+        val soreness = doc.getString("sorenessLevel").orEmpty()
+        val sleepHours = doc.getString("sleepHours").orEmpty()
+
+        val label = calculateWellnessLabel(
+            mood = mood,
+            energy = energy,
+            stress = stress,
+            soreness = soreness,
+            sleepHours = sleepHours
+        )
+
+        val summaryParts = mutableListOf<String>()
+        if (mood.isNotBlank()) summaryParts.add(mood)
+        if (energy.isNotBlank()) summaryParts.add("$energy energy")
+        if (stress.isNotBlank()) summaryParts.add("$stress stress")
+        if (sleepHours.isNotBlank()) summaryParts.add("$sleepHours hrs")
+        if (soreness.isNotBlank()) summaryParts.add(soreness)
+
+        return WellnessInfo(
+            label = label,
+            summary = summaryParts.joinToString(" • ").ifBlank { "Wellness check submitted" },
+            submittedAt = doc.getTimestamp("submittedAt") ?: doc.getTimestamp("createdAt")
+        )
+    }
+
+    private fun buildAtRiskInfo(doc: DocumentSnapshot): AtRiskInfo {
+        val data = doc.get("data") as? Map<*, *>
+        val impact = data?.get("impactLevel")?.toString().orEmpty()
+        val concern = data?.get("concernArea")?.toString().orEmpty()
+        val followUp = data?.get("followUpNeeded")?.toString().orEmpty()
+        val summaryMessage = data?.get("summaryMessage")?.toString().orEmpty()
+
+        val summary = listOf(concern, impact, followUp, summaryMessage)
+            .filter { it.isNotBlank() }
+            .joinToString(" • ")
+            .ifBlank { "At-risk form submitted" }
+
+        return AtRiskInfo(
+            impact = impact,
+            summary = summary,
+            submittedAt = doc.getTimestamp("submittedAt") ?: doc.getTimestamp("createdAt")
+        )
+    }
+
+    private fun calculateWellnessLabel(
+        mood: String,
+        energy: String,
+        stress: String,
+        soreness: String,
+        sleepHours: String
+    ): String {
+        var concernPoints = 0
+
+        if (mood.equals("Drained", true) || mood.equals("Stressed", true)) concernPoints += 2
+        else if (mood.equals("Tired", true) || mood.equals("Okay", true)) concernPoints += 1
+
+        if (energy.equals("Low", true)) concernPoints += 2
+        else if (energy.equals("Medium", true)) concernPoints += 1
+
+        if (stress.equals("High", true)) concernPoints += 2
+        else if (stress.equals("Medium", true)) concernPoints += 1
+
+        if (soreness.equals("High", true)) concernPoints += 2
+        else if (soreness.equals("Moderate", true)) concernPoints += 1
+
+        val sleepValue = sleepHours.toDoubleOrNull()
+        if (sleepValue != null) {
+            if (sleepValue < 5.5) concernPoints += 2
+            else if (sleepValue < 7.0) concernPoints += 1
+        }
+
+        return when {
+            concernPoints >= 5 -> "Concern"
+            concernPoints >= 2 -> "Watch"
+            else -> "Good"
+        }
+    }
+
+    private fun formatRelativeTime(timestamp: Timestamp?): String {
+        val date = timestamp?.toDate() ?: return "No date"
+        val now = System.currentTimeMillis()
+        val diff = now - date.time
+
+        val oneDay = 24 * 60 * 60 * 1000L
+        return when {
+            diff < oneDay -> {
+                val timeFmt = SimpleDateFormat("h:mm a", Locale.US)
+                "Latest today ${timeFmt.format(date)}"
+            }
+            diff < oneDay * 2 -> {
+                val timeFmt = SimpleDateFormat("h:mm a", Locale.US)
+                "Latest yesterday ${timeFmt.format(date)}"
+            }
+            else -> {
+                val fmt = SimpleDateFormat("MMM d, h:mm a", Locale.US)
+                "Latest ${fmt.format(date)}"
+            }
+        }
     }
 
     private fun fetchRosterAthletesByIds(ids: List<String>, onDone: (List<RosterAthlete>) -> Unit) {
@@ -535,7 +761,7 @@ class CoachDashboardFragment : Fragment() {
                     .addOnSuccessListener {
                         cachedTeamId = teamRef.id
                         cachedTeamName = teamName
-                        startRosterListener()
+                        startDashboardListeners()
                         Toast.makeText(requireContext(), "Team created: $teamName", Toast.LENGTH_SHORT).show()
                     }
             }
@@ -804,7 +1030,9 @@ class CoachDashboardFragment : Fragment() {
 
     override fun onDestroyView() {
         rosterListener?.remove()
+        formsListener?.remove()
         rosterListener = null
+        formsListener = null
         super.onDestroyView()
         _b = null
     }

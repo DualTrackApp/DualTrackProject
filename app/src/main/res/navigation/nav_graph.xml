@@ -11,6 +11,10 @@
         app:popUpTo="@id/app_nav"
         app:popUpToInclusive="true" />
 
+    <action
+        android:id="@+id/action_global_coachHome"
+        app:destination="@id/coachHomeFragment" />
+
     <fragment
         android:id="@+id/dayEventsFragment"
         android:name="com.dualtrack.app.ui.calendar.DayEventsFragment"
@@ -99,11 +103,63 @@
             app:destination="@id/dayEventsFragment" />
     </fragment>
 
+
+    <fragment
+        android:id="@+id/coachWellnessHistoryFragment"
+        android:name="com.dualtrack.app.ui.coach.CoachWellnessHistoryFragment"
+        android:label="Wellness History">
+
+        <argument
+            android:name="playerUid"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <argument
+            android:name="playerEmail"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <argument
+            android:name="playerName"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/coachAtRiskHistoryFragment"
+        android:name="com.dualtrack.app.ui.coach.CoachAtRiskHistoryFragment"
+        android:label="At-Risk History">
+
+        <argument
+            android:name="playerUid"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <argument
+            android:name="playerEmail"
+            app:argType="string"
+            android:defaultValue="" />
+
+        <argument
+            android:name="playerName"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
+
+
     <fragment
         android:id="@+id/coachHomeFragment"
         android:name="com.dualtrack.app.ui.coach.CoachDashboardFragment"
         android:label="Coach Dashboard"
         tools:layout="@layout/fragment_coach_dashboard">
+
+        <action
+            android:id="@+id/action_coachHome_to_wellnessHistory"
+            app:destination="@id/coachWellnessHistoryFragment" />
+
+        <action
+            android:id="@+id/action_coachHome_to_atRiskHistory"
+            app:destination="@id/coachAtRiskHistoryFragment" />
 
         <action
             android:id="@+id/action_coachHome_to_coachForms"

@@ -367,18 +367,19 @@ class AthleteHomeFragment : Fragment() {
                 findNavController().navigate(R.id.wellnessFormFragment)
             }
 
-            card.title == "Announcements" -> {
-                val args = Bundle().apply { putString("mode", "announcements") }
+            card.title == "Announcements" || card.title == "No announcements yet" ||
+                    announcementCards.any { it.title == card.title && it.subtitle == card.subtitle } -> {
+                val args = Bundle().apply {
+                    putString("mode", "announcements")
+                }
                 findNavController().navigate(R.id.teamUpdatesFragment, args)
             }
 
-            card.title == "Events" || card.title == "No events yet" -> {
-                val args = Bundle().apply { putString("mode", "events") }
-                findNavController().navigate(R.id.teamUpdatesFragment, args)
-            }
-
-            card.imageResId == R.drawable.banner_events -> {
-                val args = Bundle().apply { putString("mode", "events") }
+            card.title == "Events" || card.title == "No events yet" ||
+                    eventCards.any { it.title == card.title && it.subtitle == card.subtitle } -> {
+                val args = Bundle().apply {
+                    putString("mode", "events")
+                }
                 findNavController().navigate(R.id.teamUpdatesFragment, args)
             }
 
@@ -391,6 +392,7 @@ class AthleteHomeFragment : Fragment() {
             }
         }
     }
+
 
     private fun listenForRequestedFormsRow() {
         val uid = auth.currentUser?.uid ?: return

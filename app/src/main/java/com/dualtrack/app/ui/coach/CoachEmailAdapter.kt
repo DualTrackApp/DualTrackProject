@@ -30,7 +30,7 @@ class CoachEmailAdapter(
         val parts = raw.split("||")
 
         val topRaw = parts.getOrNull(0).orEmpty()
-        val bottom = parts.getOrNull(1).orEmpty()
+        val bottomRaw = parts.getOrNull(1).orEmpty()
 
         val status = when {
             topRaw.endsWith(" - Green") -> "Green"
@@ -45,10 +45,12 @@ class CoachEmailAdapter(
             .removeSuffix(" - Red")
             .ifBlank { "Athlete" }
 
-        holder.b.tvName.text = top
-        holder.b.tvEmail.text = bottom.ifBlank { raw }
+        val isPlaceholder = top.startsWith("No ", ignoreCase = true)
 
-        if (status.isBlank() || top.startsWith("No ")) {
+        holder.b.tvName.text = top
+        holder.b.tvEmail.text = if (isPlaceholder) "" else bottomRaw.ifBlank { raw }
+
+        if (status.isBlank() || isPlaceholder) {
             holder.b.vStatusDot.visibility = View.GONE
         } else {
             holder.b.vStatusDot.visibility = View.VISIBLE
@@ -65,8 +67,12 @@ class CoachEmailAdapter(
             }
         }
 
+        holder.itemView.isClickable = !isPlaceholder
+        holder.itemView.isFocusable = !isPlaceholder
         holder.itemView.setOnClickListener {
-            onClick?.invoke(raw)
+            if (!isPlaceholder) {
+                onClick?.invoke(raw)
+            }
         }
     }
 
@@ -78,6 +84,3 @@ class CoachEmailAdapter(
         notifyDataSetChanged()
     }
 }
-
-
-

@@ -1,102 +1,314 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@color/dt_navy"
-    android:padding="16dp">
-
-    <ImageButton
-        android:id="@+id/btnBack"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:background="@android:color/transparent"
-        android:src="@android:drawable/ic_media_previous"
-        android:contentDescription="Back"
-        android:padding="8dp"
-        android:tint="@color/dt_white" />
-
-    <TextView
-        android:id="@+id/tvPlayerTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Player Weekly Calendar"
-        android:textColor="@color/dt_white"
-        android:textSize="24sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tvPlayerEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:text="athlete@students.vsu.edu"
-        android:textColor="@color/dt_white_60"
-        android:textSize="14sp" />
+    android:fillViewport="true">
 
     <LinearLayout
-        android:id="@+id/layoutStatusCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:orientation="vertical"
-        android:padding="14dp"
-        android:background="@drawable/bg_spinner_white">
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="120dp"
+            android:layout_height="48dp"
+            android:background="@drawable/dt_button_pill_white_orange"
+            android:text="Back"
+            android:textAllCaps="false" />
 
         <TextView
-            android:id="@+id/tvStatusLabel"
+            android:id="@+id/tvPlayerTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Status"
-            android:textColor="@color/dt_black"
-            android:textSize="13sp"
+            android:layout_marginTop="16dp"
+            android:text="Player Overview"
+            android:textColor="@color/dt_white"
+            android:textSize="24sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvStatusValue"
+            android:id="@+id/tvPlayerEmail"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:text="Green - On track"
-            android:textColor="@color/dt_black"
+            android:text="athlete@students.vsu.edu"
+            android:textColor="@color/dt_white_60"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvFocusHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Athlete Assignment Overview"
+            android:textColor="@color/dt_white"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvFocusSubtitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="Full athlete profile."
+            android:textColor="@color/dt_white_60"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:id="@+id/layoutStatusCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_spinner_white"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:id="@+id/tvStatusLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Status"
+                android:textColor="@color/dt_black"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStatusValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="Green - Good Standing"
+                android:textColor="@color/dt_black"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvStatusReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="On track"
+                android:textColor="@color/dt_black"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvWeekRange"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Apr 27 - May 3"
+            android:textColor="@color/dt_white_60"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tvWeeklyHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:layout_marginBottom="10dp"
+            android:text="Weekly Calendar"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvWeek"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:overScrollMode="never" />
+
+        <TextView
+            android:id="@+id/tvWellnessHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="Latest Wellness"
+            android:textColor="@color/dt_white"
             android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/tvStatusReason"
+            android:id="@+id/tvWellnessSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="No current concerns"
-            android:textColor="@color/dt_black"
+            android:layout_marginTop="4dp"
+            android:text="No wellness check-ins submitted yet."
+            android:textColor="@color/dt_white_60"
             android:textSize="14sp" />
+
+        <LinearLayout
+            android:id="@+id/layoutLatestWellness"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/tvToggleWellnessHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:layout_marginTop="12dp"
+            android:text="View Wellness History"
+            android:textColor="@color/dt_white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/layoutPastWellnessSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvPastWellnessHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Past Wellness Check-Ins"
+                android:textColor="@color/dt_white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layoutPastWellness"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvRiskHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="Latest At-Risk Submission"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvRiskSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="No at-risk form submissions found."
+            android:textColor="@color/dt_white_60"
+            android:textSize="14sp" />
+
+        <LinearLayout
+            android:id="@+id/layoutLatestRisk"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/tvToggleRiskHistory"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:layout_marginTop="12dp"
+            android:text="View At-Risk History"
+            android:textColor="@color/dt_white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/layoutPastRiskSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvPastRiskHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Past At-Risk Submissions"
+                android:textColor="@color/dt_white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layoutPastRisk"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvRecentFormsHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="22dp"
+            android:text="Recent Submitted Forms"
+            android:textColor="@color/dt_white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/layoutRecentForms"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/tvToggleAllForms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
+            android:layout_marginTop="12dp"
+            android:text="View All Forms"
+            android:textColor="@color/dt_white"
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/layoutAllFormsSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvAllFormsHeader"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="All Submitted Forms"
+                android:textColor="@color/dt_white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:id="@+id/layoutAllForms"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical" />
+        </LinearLayout>
+
     </LinearLayout>
+</ScrollView>
 
-    <TextView
-        android:id="@+id/tvWeekRange"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:text="Mar 25 - Mar 31"
-        android:textColor="@color/dt_white_60"
-        android:textSize="14sp" />
 
-    <TextView
-        android:id="@+id/tvWeeklyHeader"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
-        android:text="Weekly Calendar"
-        android:textColor="@color/dt_white"
-        android:textSize="18sp"
-        android:textStyle="bold" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvWeek"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:overScrollMode="never" />
-
-</LinearLayout>
